@@ -4,7 +4,9 @@ export default function Home() {
     redirect("/login");
 
     return (
+        
         <main>
+
             <div>OK</div>
         </main>
     );
