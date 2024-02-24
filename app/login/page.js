@@ -1,11 +1,45 @@
 "use client";
 import { useRouter } from "next/navigation";
+import { useState } from "react";
+
 
 export default function Login() {
     const router = useRouter();
+    const [username, setUsername] = useState('');
+    const [password, setPassword] = useState('');
 
-    function handleLogin() {
-        router.push("/dashboard");
+    async function handleLogin() {
+        const loginDetails = {
+            username,
+            password,
+        };
+
+        console.log(loginDetails)
+
+        try {
+            const response = await fetch('http://localhost:8088/api/users/login', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(loginDetails),
+            });
+
+            if (!response.ok) {
+                throw new Error('Login failed');
+            }
+
+            // Assuming your backend sends a token or some user data on successful login
+            const data = await response.json();
+
+            // TODO save the token in local storage or context for future requests
+            //localStorage.setItem('token', data.token); something like this
+
+            router.push('/dashboard');
+        } catch (error) {
+            console.error('An error occurred during login:', error);
+            // TODO
+        }
     }
     return (
         <main>
@@ -16,13 +50,17 @@ export default function Login() {
                     </h1>
                     <input
                         type="text"
-                        placeholder="Email Address"
-                        className="outline-none duration-300 border-solid border-2 border-gray-200 p-2 w-full max-w-[30ch] rounded-lg bg-white mb-2"
+                        placeholder="Username"
+                        className="outline-none duration-300 border-solid border-2 border-gray-200 p-2 w-full max-w-[30ch] rounded-lg bg-white mb-4"
+                        alue={username}
+                        onChange={(e) => setUsername(e.target.value)}
                     />
                     <input
                         type="password"
                         placeholder="Password"
                         className="outline-none duration-300 border-solid border-2 border-gray-200 p-2 w-full max-w-[30ch] rounded-lg bg-white mb-4"
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
                     />
                     <button
                         onClick={handleLogin}
