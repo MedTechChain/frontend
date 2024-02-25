@@ -2,11 +2,10 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
-
 export default function Login() {
     const router = useRouter();
-    const [username, setUsername] = useState('');
-    const [password, setPassword] = useState('');
+    const [username, setUsername] = useState("");
+    const [password, setPassword] = useState("");
 
     async function handleLogin() {
         const loginDetails = {
@@ -14,19 +13,22 @@ export default function Login() {
             password,
         };
 
-        console.log(loginDetails)
+        console.log(loginDetails);
 
         try {
-            const response = await fetch('http://localhost:8088/api/users/login', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(loginDetails),
-            });
+            const response = await fetch(
+                "http://localhost:8088/api/users/login",
+                {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify(loginDetails),
+                }
+            );
 
             if (!response.ok) {
-                throw new Error('Login failed');
+                throw new Error("Login failed");
             }
 
             // Assuming your backend sends a token or some user data on successful login
@@ -35,9 +37,9 @@ export default function Login() {
             // TODO save the token in local storage or context for future requests
             //localStorage.setItem('token', data.token); something like this
 
-            router.push('/dashboard');
+            router.push("/dashboard");
         } catch (error) {
-            console.error('An error occurred during login:', error);
+            console.error("An error occurred during login:", error);
             // TODO
         }
     }
