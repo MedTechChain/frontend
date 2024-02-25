@@ -34,10 +34,7 @@ export default function Dashboard() {
         <main>
             <div className="flex flex-1 min-h-screen relative bg-gray-100 items-center justify-center">
                 <div className="bg-white shadow-lg flex h-4/5 w-3/4 p-4">
-                    <div
-                        style={{ maxHeight: "800px" }}
-                        className="bg-white flex flex-col items-center justify-center w-1/2"
-                    >
+                    <div className="bg-white flex flex-col items-center justify-center w-1/2 h-[500px]">
                         <h2 className="text-blue-500 text-4xl font-bold pb-4 select-none">
                             Researchers List
                         </h2>
@@ -45,7 +42,7 @@ export default function Dashboard() {
                             {people.map((person) => (
                                 <div
                                     key={person.id}
-                                    className="px-8 py-2 hover:bg-gray-300 bg-gray-100 flex  items-center justify-between border-b border-gray-400 border-solid last:border-b-0"
+                                    className="px-8 py-2 hover:bg-gray-200 bg-gray-100 flex  items-center justify-between border-b border-gray-400 border-solid last:border-b-0"
                                 >
                                     <div>
                                         <p className="text-lg">{person.name}</p>
@@ -56,7 +53,7 @@ export default function Dashboard() {
                                     <div>
                                         <FontAwesomeIcon
                                             icon={faPencil}
-                                            className="bg-blue-500 text-white p-1 rounded hover:bg-blue-600 ml-4 hover:scale-110"
+                                            className="bg-blue-500 text-white p-2 rounded hover:bg-blue-600 ml-4 hover:scale-110"
                                         />
                                         <FontAwesomeIcon
                                             onClick={() =>
@@ -65,17 +62,14 @@ export default function Dashboard() {
                                                 )
                                             }
                                             icon={faTrashCan}
-                                            className="bg-red-500 text-white p-1 rounded hover:bg-red-600 ml-4 hover:scale-110"
+                                            className="bg-red-500 text-white p-2 rounded hover:bg-red-600 ml-4 hover:scale-110"
                                         />
                                     </div>
                                 </div>
                             ))}
                         </div>
                     </div>
-                    <div
-                        style={{ maxHeight: "800px" }}
-                        className="bg-white flex flex-col  items-center justify-center w-1/2 border-l-2 border-gray-200"
-                    >
+                    <div className="bg-white flex flex-col  items-center justify-center w-1/2 border-l-2 border-gray-200 h-[500px]">
                         <h1 className="text-blue-500 text-4xl font-bold pb-4 select-none">
                             Add a researcher
                         </h1>
