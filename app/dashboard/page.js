@@ -1,34 +1,110 @@
 "use client";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faTrashCan } from "@fortawesome/free-regular-svg-icons";
 import { faPencil } from "@fortawesome/free-solid-svg-icons";
+//import checkTokenExpiry from "../auth"
+//import useAuth from "../auth"
+
 
 export default function Dashboard() {
+    //useAuth();
+    //checkTokenExpiry();
     const router = useRouter();
-    const [people, setPeople] = useState([
-        { id: 1, name: "John Doe", affiliation: "Affiliation A" },
-        { id: 2, name: "Jane Doe", affiliation: "Affiliation B" },
-        { id: 3, name: "Jim Doe", affiliation: "Affiliation C" },
-        { id: 4, name: "Jill Doe", affiliation: "Affiliation D" },
-        { id: 5, name: "Jack Doe", affiliation: "Affiliation E" },
-        { id: 6, name: "Julie Doe", affiliation: "Affiliation F" },
-        { id: 7, name: "Julie Doe", affiliation: "Affiliation G" },
-        { id: 8, name: "Julie Doe", affiliation: "Affiliation H" },
-        { id: 9, name: "Julie Doe", affiliation: "Affiliation I" },
 
-        // Add more people as needed
-    ]);
+    const [email, setEmail] = useState('');
+    const [firstName, setFirstName] = useState('');
+    const [lastName, setLastName] = useState('');
+    const [affiliation, setAffiliation] = useState('');
 
-    function handleAddResearcher() {
-        router.push("/dashboard");
+
+    async function handleAddResearcher() {
+        //checkTokenExpiry()
+        const token = localStorage.getItem('token'); 
+
+        const researcherDetails = {
+            first_name: firstName,
+            last_name: lastName,
+            email: email,
+            affiliation: affiliation
+        };
+
+
+        try {
+            const response = await fetch('http://localhost:8088/api/users/register', { 
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify(researcherDetails)
+            });
+
+            console.log(response)
+    
+            if (!response.ok) {
+                throw new Error('Failed to register new user');
+            }
+    
+        } catch (error) {
+            console.error('Error during user registration:', error);
+        }
+        setAffiliation();
+        setEmail();
+        setFirstName();
+        setLastName();
+        fetchResearchers();
     }
 
-    function handleRemoveResearcher(id) {
-        const updatedPeople = people.filter((person) => person.id !== id);
-        setPeople(updatedPeople);
+    async function handleRemoveResearcher(userId) {
+        const token = localStorage.getItem('token');
+        try {
+            const response = await fetch(`http://localhost:8088/api/users/delete?user_id=${userId}`, {
+                method: 'DELETE',
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+    
+            if (!response.ok) {
+                throw new Error('Failed to delete researcher');
+            }
+    
+            fetchResearchers();
+        } catch (error) {
+            console.error('Error during user deletion:', error);
+        }
     }
+
+    const [researchers, setResearchers] = useState([]);
+
+    async function fetchResearchers() {
+        const token = localStorage.getItem('token');
+        try {
+            const response = await fetch('http://localhost:8088/api/users/researchers', {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+
+            if (!response.ok) {
+                throw new Error('Failed to fetch researchers');
+            }
+
+            const data = await response.json();
+            setResearchers(data); 
+        } catch (error) {
+            console.error('Error fetching researchers:', error);
+        }
+    }
+    
+    useEffect(() => {
+        fetchResearchers();
+    }, []);
+
 
     return (
         <main>
@@ -39,15 +115,15 @@ export default function Dashboard() {
                             Researchers List
                         </h2>
                         <div className="bg-white flex flex-col h-3/5 w-3/4 overflow-y-scroll shadow-lg rounded-lg">
-                            {people.map((person) => (
+                            {researchers.map((researcher) => (
                                 <div
-                                    key={person.id}
+                                    key={researcher.id}
                                     className="px-8 py-2 hover:bg-gray-200 bg-gray-100 flex  items-center justify-between border-b border-gray-400 border-solid last:border-b-0"
                                 >
                                     <div>
-                                        <p className="text-lg">{person.name}</p>
+                                        <p className="text-lg">{researcher.first_name} {researcher.last_name}</p>
                                         <p className="text-sm text-gray-600">
-                                            {person.affiliation}
+                                            {researcher.affiliation}
                                         </p>
                                     </div>
                                     <div>
@@ -58,7 +134,7 @@ export default function Dashboard() {
                                         <FontAwesomeIcon
                                             onClick={() =>
                                                 handleRemoveResearcher(
-                                                    person.id
+                                                    researcher.user_id
                                                 )
                                             }
                                             icon={faTrashCan}
@@ -76,21 +152,29 @@ export default function Dashboard() {
                         <input
                             type="text"
                             placeholder="Email Address"
+                            value={email}
+                            onChange={(e) => setEmail(e.target.value)}
                             className="outline-none duration-300 border-solid border-2 border-gray-200 p-2 w-full max-w-[30ch] rounded-lg bg-white mb-4"
                         />
                         <input
                             type="text"
                             placeholder="First Name"
+                            value={firstName}
+                            onChange={(e) => setFirstName(e.target.value)}
                             className="outline-none duration-300 border-solid border-2 border-gray-200 p-2 w-full max-w-[30ch] rounded-lg bg-white mb-4"
                         />
                         <input
                             type="text"
                             placeholder="Last Name"
+                            value={lastName}
+                            onChange={(e) => setLastName(e.target.value)}
                             className="outline-none duration-300 border-solid border-2 border-gray-200 p-2 w-full max-w-[30ch] rounded-lg bg-white mb-4"
                         />
                         <input
                             type="text"
                             placeholder="Affiliation"
+                            value={affiliation}
+                            onChange={(e) => setAffiliation(e.target.value)}  
                             className="outline-none duration-300 border-solid border-2 border-gray-200 p-2 w-full max-w-[30ch] rounded-lg bg-white mb-4"
                         />
                         <button
