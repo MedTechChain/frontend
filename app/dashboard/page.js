@@ -18,6 +18,7 @@ export default function Dashboard() {
     const [lastName, setLastName] = useState('');
     const [affiliation, setAffiliation] = useState('');
 
+    const API_URL = process.env.NEXT_PUBLIC_API_URL === undefined ? "http://localhost:8088" : process.env.NEXT_PUBLIC_API_URL;
 
     async function handleAddResearcher() {
         //checkTokenExpiry()
@@ -32,7 +33,7 @@ export default function Dashboard() {
 
 
         try {
-            const response = await fetch('http://localhost:8088/api/users/register', { 
+            const response = await fetch(`${API_URL}/api/users/register`, { 
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -60,7 +61,7 @@ export default function Dashboard() {
     async function handleRemoveResearcher(userId) {
         const token = localStorage.getItem('token');
         try {
-            const response = await fetch(`http://localhost:8088/api/users/delete?user_id=${userId}`, {
+            const response = await fetch(`/api/users/delete?user_id=${userId}`, {
                 method: 'DELETE',
                 headers: {
                     'Authorization': `Bearer ${token}`
@@ -82,7 +83,7 @@ export default function Dashboard() {
     async function fetchResearchers() {
         const token = localStorage.getItem('token');
         try {
-            const response = await fetch('http://localhost:8088/api/users/researchers', {
+            const response = await fetch(`${API_URL}/api/users/researchers`, {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json',

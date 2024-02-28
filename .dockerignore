@@ -1,0 +1,7 @@
+Dockerfile
+.dockerignore
+node_modules
+README.md
+.next
+.git
+run-fe-docker.sh

@@ -6,6 +6,7 @@ export default function Login() {
     const router = useRouter();
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
+    const API_URL = process.env.NEXT_PUBLIC_API_URL === undefined ? "http://localhost:8088" : process.env.NEXT_PUBLIC_API_URL;
 
     async function handleLogin(event) {
         event.preventDefault();
@@ -19,7 +20,7 @@ export default function Login() {
 
         try {
             const response = await fetch(
-                "http://localhost:8088/api/users/login",
+                `${API_URL}/api/users/login`,
                 {
                     method: "POST",
                     headers: {
