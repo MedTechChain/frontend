@@ -1,13 +1,11 @@
 "use client";
-import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faTrashCan } from "@fortawesome/free-regular-svg-icons";
 import { faPencil } from "@fortawesome/free-solid-svg-icons";
 
 export default function Dashboard() {
-    const router = useRouter();
-
+    // State management
     const [email, setEmail] = useState("");
     const [firstName, setFirstName] = useState("");
     const [lastName, setLastName] = useState("");
@@ -15,17 +13,18 @@ export default function Dashboard() {
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
     const [currentResearcher, setCurrentResearcher] = useState(null);
 
-
     const handleEditResearcher = (researcher) => {
         setCurrentResearcher(researcher);
         setIsEditModalOpen(true);
     };
 
+    // API URL from environment values or use default value
     const API_URL =
         process.env.NEXT_PUBLIC_API_URL === undefined
             ? "http://localhost:8088"
             : process.env.NEXT_PUBLIC_API_URL;
 
+    // Functions to handle user actions (add, remove, edit researchers).
     async function handleAddResearcher() {
         const token = localStorage.getItem("token");
 
@@ -108,16 +107,21 @@ export default function Dashboard() {
         }
     }
 
+    // useEffect hook to fetch the list of researchers when the component mounts
     useEffect(() => {
         fetchResearchers();
     }, []);
 
     function EditResearcherModal({ isOpen, onClose, researcher, onSave }) {
-        const [email, setEmail] = useState(researcher?.email || '');
-        const [firstName, setFirstName] = useState(researcher?.first_name || '');
-        const [lastName, setLastName] = useState(researcher?.last_name || '');
-        const [affiliation, setAffiliation] = useState(researcher?.affiliation || '');
-    
+        const [email, setEmail] = useState(researcher?.email || "");
+        const [firstName, setFirstName] = useState(
+            researcher?.first_name || ""
+        );
+        const [lastName, setLastName] = useState(researcher?.last_name || "");
+        const [affiliation, setAffiliation] = useState(
+            researcher?.affiliation || ""
+        );
+
         const handleSaveReasearcher = () => {
             const updatedResearcher = {
                 ...researcher, // Spread the existing researcher details to maintain any other properties
@@ -126,16 +130,18 @@ export default function Dashboard() {
                 last_name: lastName,
                 affiliation,
             };
-            
+
             onSave(updatedResearcher);
         };
-    
+
         if (!isOpen) return null;
-    
+
         return (
             <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
                 <div className="bg-white p-4 rounded-lg max-w-lg w-full">
-                    <h2 className="text-xl font-semibold mb-4">Edit Researcher</h2>
+                    <h2 className="text-xl font-semibold mb-4">
+                        Edit Researcher
+                    </h2>
                     <input
                         type="text"
                         placeholder="First Name"
@@ -175,7 +181,6 @@ export default function Dashboard() {
             </div>
         );
     }
-    
 
     async function updateResearcher(researcher) {
         const token = localStorage.getItem("token");
@@ -188,11 +193,11 @@ export default function Dashboard() {
         //         },
         //         body: JSON.stringify(researcher),
         //     });
-    
+
         //     if (!response.ok) {
         //         throw new Error("Failed to update researcher");
         //     }
-    
+
         //     // Optionally, you can check the response from the server here
         //     // const data = await response.json();
         //     // console.log("Update response:", data);
@@ -200,7 +205,7 @@ export default function Dashboard() {
         //     console.error("Error during researcher update:", error);
         // }
     }
-    
+
     return (
         <main>
             <div className="flex flex-1 min-h-screen relative bg-gray-100 items-center justify-center">
@@ -227,7 +232,9 @@ export default function Dashboard() {
                                     <div>
                                         <FontAwesomeIcon
                                             icon={faPencil}
-                                            onClick={() => handleEditResearcher(researcher)}
+                                            onClick={() =>
+                                                handleEditResearcher(researcher)
+                                            }
                                             className="bg-blue-500 text-white p-2 rounded hover:bg-blue-600 ml-4 hover:scale-110"
                                         />
                                         <FontAwesomeIcon
