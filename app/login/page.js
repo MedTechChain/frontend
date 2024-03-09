@@ -3,7 +3,9 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { jwtDecode } from "jwt-decode";
 
-
+/**
+ * Login page: Allows Admin and Researcher to login to the respective dashboards
+ */
 export default function Login() {
     const router = useRouter();
     const [username, setUsername] = useState("");
@@ -15,6 +17,7 @@ export default function Login() {
             ? "http://localhost:8088"
             : process.env.NEXT_PUBLIC_API_URL;
 
+    // Function to handle login
     async function handleLogin(event) {
         event.preventDefault();
         setErrorMessage("");
@@ -23,8 +26,6 @@ export default function Login() {
             username,
             password,
         };
-
-        console.log(loginDetails);
 
         try {
             const response = await fetch(`${API_URL}/api/users/login`, {
@@ -60,6 +61,8 @@ export default function Login() {
             console.log(decoded)
             if (decoded.role == "ADMIN") {
                 router.push("/dashboard");
+            } else if (decoded.role == "RESEARCHER") {
+                router.push("/researcher");
             }
 
         } catch (error) {
@@ -83,7 +86,6 @@ export default function Login() {
                             autoComplete="username"
                             placeholder="Username"
                             required
-                            //className="outline-none duration-300 border-solid border-2 border-gray-200 p-2 w-full max-w-[30ch] rounded-lg bg-white mb-4"
                             className={`outline-none duration-300 border-solid border-2 ${errorMessage ? "border-red-500" : "border-gray-200"
                                 } p-2 w-full max-w-[30ch] rounded-lg bg-white mb-4`} // Change border color on error
 
@@ -97,8 +99,6 @@ export default function Login() {
                             required
                             className={`outline-none duration-300 border-solid border-2 ${errorMessage ? "border-red-500" : "border-gray-200"
                                 } p-2 w-full max-w-[30ch] rounded-lg bg-white mb-4`} // Change border color on error
-
-                            //className="outline-none duration-300 border-solid border-2 border-gray-200 p-2 w-full max-w-[30ch] rounded-lg bg-white mb-4"
                             value={password}
                             onChange={(e) => {setPassword(e.target.value), setErrorMessage("")}}
                         />

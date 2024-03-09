@@ -18,11 +18,8 @@ export default function RootLayout({ children }) {
             <Head>
                 <title>{metadata.title}</title>
                 <meta name="description" content={metadata.description} />
-                <link
-                    rel="icon"
-                    href="/images/main_logo.png"
-                    type="image/png"
-                />
+                <link rel="icon" href="images/main_logo.ico" type="image/x-icon" />
+
             </Head>
             <body className={inter.className}>{children}</body>
         </html>

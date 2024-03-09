@@ -5,6 +5,9 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faTrashCan } from "@fortawesome/free-regular-svg-icons";
 import { faPencil } from "@fortawesome/free-solid-svg-icons";
 
+/**
+ * ADMIN DASHBOARD: Allows the admin to view, add, edit, and delete researchers
+ */
 export default function Dashboard() {
     const router = useRouter();
 
@@ -14,8 +17,10 @@ export default function Dashboard() {
     const [affiliation, setAffiliation] = useState("");
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
     const [currentResearcher, setCurrentResearcher] = useState(null);
+    const [researchers, setResearchers] = useState([]);
 
 
+    // Function to open the edit modal for a researcher
     const handleEditResearcher = (researcher) => {
         setCurrentResearcher(researcher);
         setIsEditModalOpen(true);
@@ -26,6 +31,7 @@ export default function Dashboard() {
             ? "http://localhost:8088"
             : process.env.NEXT_PUBLIC_API_URL;
 
+    // Function to add a researcher
     async function handleAddResearcher() {
         const token = localStorage.getItem("token");
 
@@ -61,11 +67,12 @@ export default function Dashboard() {
         fetchResearchers("");
     }
 
+    // Function to delete a researcher
     async function handleRemoveResearcher(userId) {
         const token = localStorage.getItem("token");
         try {
             const response = await fetch(
-                `/api/users/delete?user_id=${userId}`,
+                `${API_URL}/api/users/delete?user_id=${userId}`,
                 {
                     method: "DELETE",
                     headers: {
@@ -84,8 +91,7 @@ export default function Dashboard() {
         }
     }
 
-    const [researchers, setResearchers] = useState([]);
-
+    // Function to fetch all researchers
     async function fetchResearchers() {
         const token = localStorage.getItem("token");
         try {
@@ -112,6 +118,7 @@ export default function Dashboard() {
         fetchResearchers();
     }, []);
 
+    // function to edit a researcher
     function EditResearcherModal({ isOpen, onClose, researcher, onSave }) {
         const [email, setEmail] = useState(researcher?.email || '');
         const [firstName, setFirstName] = useState(researcher?.first_name || '');
@@ -124,8 +131,9 @@ export default function Dashboard() {
                 email,
                 first_name: firstName,
                 last_name: lastName,
-                affiliation,
+                affiliation: affiliation,
             };
+            console.log(updatedResearcher);
             
             onSave(updatedResearcher);
         };
@@ -176,30 +184,33 @@ export default function Dashboard() {
         );
     }
     
+    // Function to update a researcher
+async function updateResearcher(researcher) {
+    const token = localStorage.getItem("token");
+    const userId = researcher.user_id; // Assuming 'user_id' is a property of the 'researcher' object
 
-    async function updateResearcher(researcher) {
-        const token = localStorage.getItem("token");
-        // try {
-        //     const response = await fetch(`${API_URL}/api/users/update`, { // Adjust the URL as needed for your API
-        //         method: "PUT", // or "PATCH" depending on your API
-        //         headers: {
-        //             "Content-Type": "application/json",
-        //             Authorization: `Bearer ${token}`,
-        //         },
-        //         body: JSON.stringify(researcher),
-        //     });
-    
-        //     if (!response.ok) {
-        //         throw new Error("Failed to update researcher");
-        //     }
-    
-        //     // Optionally, you can check the response from the server here
-        //     // const data = await response.json();
-        //     // console.log("Update response:", data);
-        // } catch (error) {
-        //     console.error("Error during researcher update:", error);
-        // }
+    try {
+        const response = await fetch(`${API_URL}/api/users/update?user_id=${userId}`, { // Update the URL to include the user ID as a query parameter
+            method: "PUT", // Use "PUT" as specified in your backend documentation
+            headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${token}`,
+            },
+            body: JSON.stringify({
+                first_name: researcher.first_name,
+                last_name: researcher.last_name,
+                affiliation: researcher.affiliation,
+            }),
+        });
+
+        if (!response.ok) {
+            throw new Error("Failed to update researcher");
+        }
+    } catch (error) {
+        console.error("Error during researcher update:", error);
     }
+}
+
     
     return (
         <main>
