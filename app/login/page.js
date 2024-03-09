@@ -6,12 +6,15 @@ import { jwtDecode } from "jwt-decode";
 /**
  * Login page: Allows Admin and Researcher to login to the respective dashboards
  */
+
 export default function Login() {
+    // State management
     const router = useRouter();
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
     const [errorMessage, setErrorMessage] = useState(""); // New state for error message
 
+    // API URL from environment values or use default value
     const API_URL =
         process.env.NEXT_PUBLIC_API_URL === undefined
             ? "http://localhost:8088"
@@ -53,18 +56,18 @@ export default function Login() {
                 return;
             }
 
+            // Saving JWT in local storage
             localStorage.setItem("token", data.jwt);
             localStorage.setItem("token_type", data.token_type);
             localStorage.setItem("token_expires_in", data.expires_in);
 
             const decoded = jwtDecode(data.jwt);
-            console.log(decoded)
+            console.log(decoded);
             if (decoded.role == "ADMIN") {
                 router.push("/dashboard");
             } else if (decoded.role == "RESEARCHER") {
                 router.push("/researcher");
             }
-
         } catch (error) {
             console.error("An error occurred during login:", error);
             setErrorMessage("Login failed. Try again."); // Update this line to set the error message
@@ -86,24 +89,39 @@ export default function Login() {
                             autoComplete="username"
                             placeholder="Username"
                             required
-                            className={`outline-none duration-300 border-solid border-2 ${errorMessage ? "border-red-500" : "border-gray-200"
-                                } p-2 w-full max-w-[30ch] rounded-lg bg-white mb-4`} // Change border color on error
-
+                            //className="outline-none duration-300 border-solid border-2 border-gray-200 p-2 w-full max-w-[30ch] rounded-lg bg-white mb-4"
+                            className={`outline-none duration-300 border-solid border-2 ${
+                                errorMessage
+                                    ? "border-red-500"
+                                    : "border-gray-200"
+                            } p-2 w-full max-w-[30ch] rounded-lg bg-white mb-4`} // Change border color on error
                             value={username}
-                            onChange={(e) => {setUsername(e.target.value), setErrorMessage("")}}
+                            onChange={(e) => {
+                                setUsername(e.target.value),
+                                    setErrorMessage("");
+                            }}
                         />
                         <input
                             type="password"
                             autoComplete="current-password"
                             placeholder="Password"
                             required
-                            className={`outline-none duration-300 border-solid border-2 ${errorMessage ? "border-red-500" : "border-gray-200"
-                                } p-2 w-full max-w-[30ch] rounded-lg bg-white mb-4`} // Change border color on error
+                            className={`outline-none duration-300 border-solid border-2 ${
+                                errorMessage
+                                    ? "border-red-500"
+                                    : "border-gray-200"
+                            } p-2 w-full max-w-[30ch] rounded-lg bg-white mb-4`} // Change border color on error
+                            //className="outline-none duration-300 border-solid border-2 border-gray-200 p-2 w-full max-w-[30ch] rounded-lg bg-white mb-4"
                             value={password}
-                            onChange={(e) => {setPassword(e.target.value), setErrorMessage("")}}
+                            onChange={(e) => {
+                                setPassword(e.target.value),
+                                    setErrorMessage("");
+                            }}
                         />
                         {errorMessage && ( // Conditionally render error message
-                            <div className="text-red-500 mb-4">{errorMessage}</div>
+                            <div className="text-red-500 mb-4">
+                                {errorMessage}
+                            </div>
                         )}
                         <button
                             type="submit"
