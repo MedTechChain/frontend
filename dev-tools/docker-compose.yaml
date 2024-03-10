@@ -2,20 +2,21 @@ version: "3.8"
 
 # TODO: replace medtechchain with medtechchain
 services:
-    medtechchain-frontend-ums:
-        build:
-            context: ./..
-            args:
-                NEXT_PUBLIC_API_URL: http://localhost:8088
-        image: medtechchain/frontend-ums
-        container_name: medtechchain-frontend-ums
-        profiles:
-            - demo
-        ports:
-            - "3000:3000"
-        networks:
-            - medtechchain-ums
+  healthblocks-frontend:
+    build:
+      context: ./..
+      args:
+        NEXT_PUBLIC_API_URL: http://localhost:8088
+    image: medtechchain/frontend
+    container_name: medtechchain-frontend
+    profiles:
+      - demo
+    ports:
+      - "3000:3000"
+    networks:
+      - medtechchain
 
 networks:
-    medtechchain-ums:
-        name: medtechchain-ums
+  medtechchain:
+    external: true
+    name: medtechchain
