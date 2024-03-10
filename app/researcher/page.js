@@ -14,12 +14,20 @@ export default function Researcher() {
     const [availableSpecifications, setAvailableSpecifications] = useState([]);
     const [version, setVersion] = useState("");
     const [versionCount, setVersionCount] = useState(null); // Temporarily used for the demo
-
+   
     const API_URL =
         process.env.NEXT_PUBLIC_API_URL === undefined
             ? "http://localhost:8088"
             : process.env.NEXT_PUBLIC_API_URL;
 
+     // Function to handle logout
+     const handleLogout = () => {
+        // Clear user token or session data
+        localStorage.removeItem("token");
+
+        // Redirect to login page or any other page you consider as the logout landing page
+        router.push('/login');
+    };
 
     // Device types
     const deviceTypes = ["Wearable Device", "Bedside Monitor", "Both"];
@@ -185,6 +193,14 @@ export default function Researcher() {
     return (
         <main>
             <div className="flex flex-1 min-h-screen bg-gray-100 items-center justify-center flex-col">
+            <div className="absolute top-4 right-8">
+                    <button
+                        onClick={handleLogout}
+                        className="text-blue-500 border border-blue-500 border-2 hover:bg-blue-500 hover:text-white font-bold py-2 px-4 rounded"
+                    >
+                        Logout
+                    </button>
+                </div>
                 <div className="flex justify-center space-x-4 py-4">
                     <button className="py-2 px-4 bg-blue-500 text-white rounded hover:bg-blue-600" onClick={() => setView('Count')}>Count</button>
                     <button className="py-2 px-4 bg-blue-500 text-white rounded hover:bg-blue-600" onClick={() => setView('Display')}>Display</button>

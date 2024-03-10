@@ -1,4 +1,5 @@
 "use client";
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faTrashCan } from "@fortawesome/free-regular-svg-icons";
@@ -8,7 +9,10 @@ import { faPencil } from "@fortawesome/free-solid-svg-icons";
  * ADMIN DASHBOARD: Allows the admin to view, add, edit, and delete researchers
  */
 export default function Dashboard() {
+    const router = useRouter();
+
     // State management
+    const [errorMessage, setErrorMessage] = useState("");
     const [email, setEmail] = useState("");
     const [firstName, setFirstName] = useState("");
     const [lastName, setLastName] = useState("");
@@ -29,11 +33,42 @@ export default function Dashboard() {
             ? "http://localhost:8088"
             : process.env.NEXT_PUBLIC_API_URL;
 
+
+    // Function to handle logout
+    const handleLogout = () => {
+        // Clear user token or session data
+        localStorage.removeItem("token");
+
+        // Redirect to login page or any other page you consider as the logout landing page
+        router.push('/login');
+    };
+
+
+    // Regular expression pattern for email validation
+    const regexPattern = "^(?=.{1,64}@)[A-Za-z0-9_-]+(\\.[A-Za-z0-9_-]+)*@" +
+        "[^-][A-Za-z0-9-]+(\\.[A-Za-z0-9-]+)*(\\.[A-Za-z]{2,})$";
+
     // Function to add a researcher
-    // Functions to handle user actions (add, remove, edit researchers).
-    async function handleAddResearcher() {
+    async function handleAddResearcher(event) {
+        event.preventDefault();
+        setErrorMessage("");
+
+        // Validate email address
+        if (!new RegExp(regexPattern).test(email)) {
+            setErrorMessage("Please enter a valid email address.");
+            return;
+        }
+
+        // Validate all fields are filled
+        if (!email.trim() || !firstName.trim() || !lastName.trim() || !affiliation.trim()) {
+            setErrorMessage("Please fill in all fields.");
+            return;
+        }
+
+        // Get token from local storage
         const token = localStorage.getItem("token");
 
+        // Create a new researcher object
         const researcherDetails = {
             first_name: firstName,
             last_name: lastName,
@@ -41,6 +76,7 @@ export default function Dashboard() {
             affiliation: affiliation,
         };
 
+        // Send a POST request to the server to add the new researcher
         try {
             const response = await fetch(`${API_URL}/api/users/register`, {
                 method: "POST",
@@ -59,6 +95,8 @@ export default function Dashboard() {
         } catch (error) {
             console.error("Error during user registration:", error);
         }
+
+        // Clear the form fields and fetch the updated list of researchers
         setAffiliation("");
         setEmail("");
         setFirstName("");
@@ -129,6 +167,7 @@ export default function Dashboard() {
             researcher?.affiliation || ""
         );
 
+        // Function to save the updated researcher details
         const handleSaveReasearcher = () => {
             const updatedResearcher = {
                 ...researcher, // Spread the existing researcher details to maintain any other properties
@@ -138,7 +177,7 @@ export default function Dashboard() {
                 affiliation: affiliation,
             };
             console.log(updatedResearcher);
-            
+
             onSave(updatedResearcher);
         };
 
@@ -154,23 +193,35 @@ export default function Dashboard() {
                         type="text"
                         placeholder="First Name"
                         value={firstName}
-                        onChange={(e) => setFirstName(e.target.value)}
+                        onChange={(e) => {
+                            setFirstName(e.target.value),
+                                setErrorMessage("");
+                        }}
                         className="outline-none border border-gray-300 p-2 w-full rounded mb-2"
                     />
                     <input
                         type="text"
                         placeholder="Last Name"
                         value={lastName}
-                        onChange={(e) => setLastName(e.target.value)}
+                        onChange={(e) => {
+                            setLastName(e.target.value),
+                                setErrorMessage("");
+                        }}
                         className="outline-none border border-gray-300 p-2 w-full rounded mb-2"
                     />
                     <input
                         type="text"
                         placeholder="Affiliation"
                         value={affiliation}
-                        onChange={(e) => setAffiliation(e.target.value)}
+                        onChange={(e) => {
+                            setAffiliation(e.target.value),
+                                setErrorMessage("");
+                        }}
                         className="outline-none border border-gray-300 p-2 w-full rounded mb-4"
                     />
+                    {errorMessage && (
+                        <div className="text-red-500 mb-4">{errorMessage}</div>
+                    )}
                     <div className="flex justify-end gap-2">
                         <button
                             onClick={onClose}
@@ -189,38 +240,50 @@ export default function Dashboard() {
             </div>
         );
     }
-    
+
     // Function to update a researcher
-async function updateResearcher(researcher) {
-    const token = localStorage.getItem("token");
-    const userId = researcher.user_id; // Assuming 'user_id' is a property of the 'researcher' object
+    async function updateResearcher(researcher) {
+        const token = localStorage.getItem("token");
+        const userId = researcher.user_id; // Assuming 'user_id' is a property of the 'researcher' object
 
-    try {
-        const response = await fetch(`${API_URL}/api/users/update?user_id=${userId}`, { // Update the URL to include the user ID as a query parameter
-            method: "PUT", // Use "PUT" as specified in your backend documentation
-            headers: {
-                "Content-Type": "application/json",
-                Authorization: `Bearer ${token}`,
-            },
-            body: JSON.stringify({
-                first_name: researcher.first_name,
-                last_name: researcher.last_name,
-                affiliation: researcher.affiliation,
-            }),
-        });
+        try {
+            const response = await fetch(`${API_URL}/api/users/update?user_id=${userId}`, { // Update the URL to include the user ID as a query parameter
+                method: "PUT", // Use "PUT" as specified in your backend documentation
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${token}`,
+                },
+                body: JSON.stringify({
+                    first_name: researcher.first_name,
+                    last_name: researcher.last_name,
+                    affiliation: researcher.affiliation,
+                }),
+            });
 
-        if (!response.ok) {
-            throw new Error("Failed to update researcher");
+            if (!response.ok) {
+                throw new Error("Failed to update researcher");
+            }
+        } catch (error) {
+            console.error("Error during researcher update:", error);
         }
-    } catch (error) {
-        console.error("Error during researcher update:", error);
     }
-}
 
-    
+    // Function to handle redirection to the Change Password page
+    const handleChangePasswordClick = () => {
+        router.push('/changepassword');
+    };
+
     return (
         <main>
             <div className="flex flex-1 min-h-screen relative bg-gray-100 items-center justify-center">
+                <div className="absolute top-4 right-8">
+                    <button
+                        onClick={handleLogout}
+                        className="text-blue-500 border border-blue-500 border-2 hover:bg-blue-500 hover:text-white font-bold py-2 px-4 rounded"
+                    >
+                        Logout
+                    </button>
+                </div>
                 <div className="bg-white shadow-lg flex h-4/5 w-3/4 p-4">
                     <div className="bg-white flex flex-col items-center justify-center w-1/2 h-[500px]">
                         <h2 className="text-blue-500 text-4xl font-bold pb-4 select-none">
@@ -267,45 +330,75 @@ async function updateResearcher(researcher) {
                         <h1 className="text-blue-500 text-4xl font-bold pb-4 select-none">
                             Add a researcher
                         </h1>
-                        <input
-                            type="text"
-                            placeholder="Email Address"
-                            value={email}
-                            onChange={(e) => setEmail(e.target.value)}
-                            className="outline-none duration-300 border-solid border-2 border-gray-200 p-2 w-full max-w-[30ch] rounded-lg bg-white mb-4"
-                        />
-                        <input
-                            type="text"
-                            placeholder="First Name"
-                            value={firstName}
-                            onChange={(e) => setFirstName(e.target.value)}
-                            className="outline-none duration-300 border-solid border-2 border-gray-200 p-2 w-full max-w-[30ch] rounded-lg bg-white mb-4"
-                        />
-                        <input
-                            type="text"
-                            placeholder="Last Name"
-                            value={lastName}
-                            onChange={(e) => setLastName(e.target.value)}
-                            className="outline-none duration-300 border-solid border-2 border-gray-200 p-2 w-full max-w-[30ch] rounded-lg bg-white mb-4"
-                        />
-                        <input
-                            type="text"
-                            placeholder="Affiliation"
-                            value={affiliation}
-                            onChange={(e) => setAffiliation(e.target.value)}
-                            className="outline-none duration-300 border-solid border-2 border-gray-200 p-2 w-full max-w-[30ch] rounded-lg bg-white mb-4"
-                        />
-                        <button
-                            onClick={handleAddResearcher}
-                            type="button"
-                            className="bg-blue-500 text-gray-100 rounded-lg w-[26ch] py-1.5 select-none hover:bg-blue-600 duration-300 mb-2"
+                        <form
+                            onSubmit={handleAddResearcher}
+                            className="flex flex-col items-center justify-center w-full"
                         >
-                            Add
-                        </button>
+                            <input
+                                type="text"
+                                placeholder="Email Address"
+                                value={email}
+                                onChange={(e) => {
+                                    setEmail(e.target.value),
+                                        setErrorMessage("");
+                                }}
+                                className={`outline-none duration-300 border-solid border-2 ${errorMessage
+                                    ? "border-red-500"
+                                    : "border-gray-200"
+                                    } p-2 w-full max-w-[30ch] rounded-lg bg-white mb-4`} />
+                            <input
+                                type="text"
+                                placeholder="First Name"
+                                value={firstName}
+                                onChange={(e) => {
+                                    setFirstName(e.target.value),
+                                        setErrorMessage("");
+                                }}
+                                className={`outline-none duration-300 border-solid border-2 ${errorMessage
+                                    ? "border-red-500"
+                                    : "border-gray-200"
+                                    } p-2 w-full max-w-[30ch] rounded-lg bg-white mb-4`}
+                            />
+                            <input
+                                type="text"
+                                placeholder="Last Name"
+                                value={lastName}
+                                onChange={(e) => {
+                                    setLastName(e.target.value),
+                                        setErrorMessage("");
+                                }}
+                                className={`outline-none duration-300 border-solid border-2 ${errorMessage
+                                    ? "border-red-500"
+                                    : "border-gray-200"
+                                    } p-2 w-full max-w-[30ch] rounded-lg bg-white mb-4`} />
+                            <input
+                                type="text"
+                                placeholder="Affiliation"
+                                value={affiliation}
+                                onChange={(e) => {
+                                    setAffiliation(e.target.value),
+                                        setErrorMessage("");
+                                }}
+                                className={`outline-none duration-300 border-solid border-2 ${errorMessage
+                                    ? "border-red-500"
+                                    : "border-gray-200"
+                                    } p-2 w-full max-w-[30ch] rounded-lg bg-white mb-4`} />
+                            {errorMessage && (
+                                <div className="text-red-500 mb-4">
+                                    {errorMessage}
+                                </div>
+                            )}
+                            <button
+                                type="submit"
+                                className="bg-blue-500 text-gray-100 rounded-lg w-[26ch] py-1.5 select-none hover:bg-blue-600 duration-300 mb-2"
+                            >
+                                Add
+                            </button>
+                        </form>
                     </div>
                 </div>
             </div>
-            {/* Place the EditResearcherModal invocation here */}
+
             <EditResearcherModal
                 isOpen={isEditModalOpen}
                 onClose={() => setIsEditModalOpen(false)}

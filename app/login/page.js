@@ -25,6 +25,11 @@ export default function Login() {
         event.preventDefault();
         setErrorMessage("");
 
+        if (!username.trim() || !password.trim()) {
+            setErrorMessage("Please fill in all fields.");
+            return;
+        }
+
         const loginDetails = {
             username,
             password,
@@ -73,8 +78,25 @@ export default function Login() {
             setErrorMessage("Login failed. Try again."); // Update this line to set the error message
         }
     }
+
+    // Function to handle redirection to the Change Password page
+    const handleChangePasswordClick = () => {
+        router.push('/changepassword');
+    };
+
     return (
         <main>
+            <nav className="bg-blue-500 text-white p-3 w-full fixed top-0 left-0 z-50">
+                <div className="container mx-auto flex justify-between items-center">
+                    <h1 className="text-lg font-bold"></h1>
+                    <button
+                        onClick={handleChangePasswordClick}
+                        className=" hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+                    >
+                        Change Password
+                    </button>
+                </div>
+            </nav>
             <div className="flex flex-1 min-h-screen relative bg-gray-100 items-center justify-center">
                 <div className="flex flex-col bg-white shadow-lg py-16 px-32 items-center justify-center">
                     <h1 className="text-blue-500 text-4xl font-bold pb-4 select-none">
@@ -88,13 +110,10 @@ export default function Login() {
                             type="text"
                             autoComplete="username"
                             placeholder="Username"
-                            required
-                            //className="outline-none duration-300 border-solid border-2 border-gray-200 p-2 w-full max-w-[30ch] rounded-lg bg-white mb-4"
-                            className={`outline-none duration-300 border-solid border-2 ${
-                                errorMessage
-                                    ? "border-red-500"
-                                    : "border-gray-200"
-                            } p-2 w-full max-w-[30ch] rounded-lg bg-white mb-4`} // Change border color on error
+                            className={`outline-none duration-300 border-solid border-2 ${errorMessage
+                                ? "border-red-500"
+                                : "border-gray-200"
+                                } p-2 w-full max-w-[30ch] rounded-lg bg-white mb-4`} // Change border color on error
                             value={username}
                             onChange={(e) => {
                                 setUsername(e.target.value),
@@ -105,13 +124,10 @@ export default function Login() {
                             type="password"
                             autoComplete="current-password"
                             placeholder="Password"
-                            required
-                            className={`outline-none duration-300 border-solid border-2 ${
-                                errorMessage
-                                    ? "border-red-500"
-                                    : "border-gray-200"
-                            } p-2 w-full max-w-[30ch] rounded-lg bg-white mb-4`} // Change border color on error
-                            //className="outline-none duration-300 border-solid border-2 border-gray-200 p-2 w-full max-w-[30ch] rounded-lg bg-white mb-4"
+                            className={`outline-none duration-300 border-solid border-2 ${errorMessage
+                                ? "border-red-500"
+                                : "border-gray-200"
+                                } p-2 w-full max-w-[30ch] rounded-lg bg-white mb-4`} 
                             value={password}
                             onChange={(e) => {
                                 setPassword(e.target.value),
