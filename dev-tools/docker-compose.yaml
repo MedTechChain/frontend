@@ -1,8 +1,7 @@
 version: "3.8"
 
-# TODO: replace medtechchain with medtechchain
 services:
-  healthblocks-frontend:
+  medtechchain-frontend:
     build:
       context: ./..
       args:
