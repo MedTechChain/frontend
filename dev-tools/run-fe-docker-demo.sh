@@ -8,6 +8,4 @@ if [ ! "$(docker network ls --format "{{.Name}}" | grep "^$NETWORK$")" ]; then
     docker network create --driver bridge "$NETWORK"
 fi
 
-echo ">>> Running MedTechChain Frontend for Demo (IGNORE WARNINGS) <<<"
-
-docker-compose --profile demo -p medtechchain up --build -d
+docker-compose --profile demo -p medtechchain-ums up --build -d
