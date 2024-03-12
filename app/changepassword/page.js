@@ -50,7 +50,7 @@ export default function ChangePassword() {
                     new_password: newPassword,
                 }),
             });
-    
+
             if (!response.ok) {
                 throw new Error("Failed to change password. Please try again.");
             }
@@ -59,90 +59,90 @@ export default function ChangePassword() {
             setCurrentPassword("");
             setNewPassword("");
             setConfirmPassword("");
-    
+
             // Redirect to log in again
             router.push('/login');
-    
+
         } catch (error) {
             console.error("Error changing password:", error);
             setErrorMessage(error.message);
         }
     }
-}
 
-return (
-    <main>
-        <nav className="bg-blue-500 text-white p-3 w-full fixed top-0 left-0 z-50">
-            <div className="container mx-auto flex justify-between items-center">
-                <h1 className="text-lg font-bold"></h1>
-                <button
-                    onClick={() => router.push('/login')}
-                    className="hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-                >
-                    Back to Login
-                </button>
-            </div>
-        </nav>
-        <div className="flex flex-1 min-h-screen pt-16 bg-gray-100 items-center justify-center">
-            <div className="flex flex-col bg-white shadow-lg py-16 px-32 items-center justify-center">
-                <h1 className="text-blue-500 text-4xl font-bold pb-4 select-none">
-                    MedTech Chain
-                </h1>
-                <form
-                    onSubmit={handleChangePassword}
-                    className="flex flex-col items-center justify-center w-full"
-                >
-                    <input
-                        type="text"
-                        autoComplete="username"
-                        placeholder="Username"
-                        required
-                        className={`outline-none duration-300 border-solid border-2 ${errorMessage
-                            ? "border-red-500"
-                            : "border-gray-200"
-                            } p-2 w-full max-w-[30ch] rounded-lg bg-white mb-4`} // Change border color on error
-                        value={username}
-                        onChange={(e) => {
-                            setUsername(e.target.value),
-                                setErrorMessage("");
-                        }}
-                    />
-                    <input
-                        type="password"
-                        placeholder="Current Password"
-                        required
-                        className={`outline-none duration-300 border-solid border-2 ${errorMessage ? "border-red-500" : "border-gray-200"} p-2 w-full max-w-[30ch] rounded-lg bg-white mb-4`}
-                        value={currentPassword}
-                        onChange={(e) => setCurrentPassword(e.target.value)}
-                    />
-                    <input
-                        type="password"
-                        placeholder="New Password"
-                        required
-                        className={`outline-none duration-300 border-solid border-2 ${errorMessage ? "border-red-500" : "border-gray-200"} p-2 w-full max-w-[30ch] rounded-lg bg-white mb-4`}
-                        value={newPassword}
-                        onChange={(e) => setNewPassword(e.target.value)}
-                    />
-                    <input
-                        type="password"
-                        placeholder="Confirm New Password"
-                        required
-                        className={`outline-none duration-300 border-solid border-2 ${errorMessage ? "border-red-500" : "border-gray-200"} p-2 w-full max-w-[30ch] rounded-lg bg-white mb-4`}
-                        value={confirmPassword}
-                        onChange={(e) => setConfirmPassword(e.target.value)}
-                    />
-                    {errorMessage && (
-                        <div className="text-red-500 mb-4">{errorMessage}</div>
-                    )}
+
+    return (
+        <main>
+            <nav className="bg-blue-500 text-white p-3 w-full fixed top-0 left-0 z-50">
+                <div className="container mx-auto flex justify-between items-center">
+                    <h1 className="text-lg font-bold"></h1>
                     <button
-                        type="submit"
-                        className="bg-blue-500 text-gray-100 rounded-lg w-[26ch] py-2 select-none hover:bg-blue-600 duration-300 mb-2"
+                        onClick={() => router.push('/login')}
+                        className="hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
                     >
-                        Change Password
+                        Back to Login
                     </button>
-                </form>
+                </div>
+            </nav>
+            <div className="flex flex-1 min-h-screen pt-16 bg-gray-100 items-center justify-center">
+                <div className="flex flex-col bg-white shadow-lg py-16 px-32 items-center justify-center">
+                    <h1 className="text-blue-500 text-4xl font-bold pb-4 select-none">
+                        MedTech Chain
+                    </h1>
+                    <form
+                        onSubmit={handleChangePassword}
+                        className="flex flex-col items-center justify-center w-full"
+                    >
+                        <input
+                            type="text"
+                            autoComplete="username"
+                            placeholder="Username"
+                            required
+                            className={`outline-none duration-300 border-solid border-2 ${errorMessage
+                                ? "border-red-500"
+                                : "border-gray-200"
+                                } p-2 w-full max-w-[30ch] rounded-lg bg-white mb-4`} // Change border color on error
+                            value={username}
+                            onChange={(e) => {
+                                setUsername(e.target.value),
+                                    setErrorMessage("");
+                            }}
+                        />
+                        <input
+                            type="password"
+                            placeholder="Current Password"
+                            required
+                            className={`outline-none duration-300 border-solid border-2 ${errorMessage ? "border-red-500" : "border-gray-200"} p-2 w-full max-w-[30ch] rounded-lg bg-white mb-4`}
+                            value={currentPassword}
+                            onChange={(e) => setCurrentPassword(e.target.value)}
+                        />
+                        <input
+                            type="password"
+                            placeholder="New Password"
+                            required
+                            className={`outline-none duration-300 border-solid border-2 ${errorMessage ? "border-red-500" : "border-gray-200"} p-2 w-full max-w-[30ch] rounded-lg bg-white mb-4`}
+                            value={newPassword}
+                            onChange={(e) => setNewPassword(e.target.value)}
+                        />
+                        <input
+                            type="password"
+                            placeholder="Confirm New Password"
+                            required
+                            className={`outline-none duration-300 border-solid border-2 ${errorMessage ? "border-red-500" : "border-gray-200"} p-2 w-full max-w-[30ch] rounded-lg bg-white mb-4`}
+                            value={confirmPassword}
+                            onChange={(e) => setConfirmPassword(e.target.value)}
+                        />
+                        {errorMessage && (
+                            <div className="text-red-500 mb-4">{errorMessage}</div>
+                        )}
+                        <button
+                            type="submit"
+                            className="bg-blue-500 text-gray-100 rounded-lg w-[26ch] py-2 select-none hover:bg-blue-600 duration-300 mb-2"
+                        >
+                            Change Password
+                        </button>
+                    </form>
+                </div>
             </div>
-        </div>
-    </main>
-);
+        </main>
+    );
 }
