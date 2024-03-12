@@ -268,11 +268,6 @@ export default function Dashboard() {
         }
     }
 
-    // Function to handle redirection to the Change Password page
-    const handleChangePasswordClick = () => {
-        router.push('/changepassword');
-    };
-
     return (
         <main>
             <div className="flex flex-1 min-h-screen relative bg-gray-100 items-center justify-center">
@@ -398,14 +393,14 @@ export default function Dashboard() {
                     </div>
                 </div>
             </div>
-
             <EditResearcherModal
                 isOpen={isEditModalOpen}
                 onClose={() => setIsEditModalOpen(false)}
                 researcher={currentResearcher}
                 onSave={async (updatedResearcher) => {
                     await updateResearcher(updatedResearcher);
-                    fetchResearchers();
+                    fetchResearchers(); // Fetch updated list of researchers
+                    setIsEditModalOpen(false); // Close the modal after saving
                 }}
             />
         </main>
