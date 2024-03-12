@@ -10,6 +10,13 @@ export default function ChangePassword() {
     const [confirmPassword, setConfirmPassword] = useState("");
     const [errorMessage, setErrorMessage] = useState("");
 
+    // API URL from environment values or use default value
+    const API_URL =
+        process.env.NEXT_PUBLIC_API_URL === undefined
+            ? "http://localhost:8088"
+            : process.env.NEXT_PUBLIC_API_URL;
+
+
     async function handleChangePassword(event) {
         event.preventDefault();
         setErrorMessage("");
