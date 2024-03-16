@@ -109,11 +109,6 @@ export default function Dashboard() {
 
     // Function to delete a researcher
     async function handleRemoveResearcher(userId) {
-        const isConfirmed = confirm('Are you sure you want to delete this researcher?');
-        if (!isConfirmed) {
-            return; // Stop the function if the user cancels
-        }
-
         const token = localStorage.getItem("token");
         try {
             const response = await fetch(
@@ -223,7 +218,7 @@ export default function Dashboard() {
 
         return (
             <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
-                <div className=" p-4 rounded-lg max-w-lg w-full">
+                <div className="bg-white p-4 rounded-lg max-w-lg w-full">
                     <h2 className="text-xl font-semibold mb-4">
                         Edit Researcher
                     </h2>
@@ -269,7 +264,7 @@ export default function Dashboard() {
                         </button>
                         <button
                             onClick={handleSaveReasearcher}
-                            className="px-4 py-2 bg-teal-600 text-white rounded hover:bg-blue-600"
+                            className="px-4 py-2 bg-teal-600 text-white rounded hover:bg-teal-700"
                         >
                             Save
                         </button>
@@ -346,7 +341,7 @@ export default function Dashboard() {
                                             onClick={() =>
                                                 handleEditResearcher(researcher)
                                             }
-                                            className="bg-teal-600 text-white p-2 rounded hover:bg-blue-600 ml-4 hover:scale-110"
+                                            className="bg-teal-600 text-white p-2 rounded hover:bg-teal-700 ml-4 hover:scale-110"
                                         />
                                         <FontAwesomeIcon
                                             onClick={() =>
@@ -425,7 +420,7 @@ export default function Dashboard() {
                             )}
                             <button
                                 type="submit"
-                                className="bg-teal-600 text-gray-100 rounded-lg w-[26ch] py-1.5 select-none hover:bg-blue-600 duration-300 mb-2"
+                                className="bg-teal-600 text-gray-100 rounded-lg w-[26ch] py-1.5 select-none hover:bg-teal-700 duration-300 mb-2"
                             >
                                 Add
                             </button>
@@ -446,7 +441,10 @@ export default function Dashboard() {
             <DeleteConfirmationModal
                 isOpen={isDeleteModalOpen}
                 onClose={() => setIsDeleteModalOpen(false)}
-                onConfirm={() => handleRemoveResearcher(selectedResearcherId)}
+                onConfirm={() => {
+                    handleRemoveResearcher(selectedResearcherId)
+                    setIsDeleteModalOpen(false)
+                }}
             />
         </main>
     );
