@@ -9,9 +9,6 @@ services:
         NEXT_PUBLIC_API_URL: http://localhost:8088
     image: medtechchain/frontend
     container_name: medtechchain-frontend
-    profiles:
-      - dev
-      - demo
     ports:
       - "3000:3000"
     networks:
