@@ -19,6 +19,9 @@ export default function Dashboard() {
     const [affiliation, setAffiliation] = useState("");
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
     const [currentResearcher, setCurrentResearcher] = useState(null);
+    const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+    const [selectedResearcherId, setSelectedResearcherId] = useState(null);
+
     const [researchers, setResearchers] = useState([]);
 
     // Function to open the edit modal for a researcher
@@ -106,6 +109,11 @@ export default function Dashboard() {
 
     // Function to delete a researcher
     async function handleRemoveResearcher(userId) {
+        const isConfirmed = confirm('Are you sure you want to delete this researcher?');
+        if (!isConfirmed) {
+            return; // Stop the function if the user cancels
+        }
+
         const token = localStorage.getItem("token");
         try {
             const response = await fetch(
@@ -156,6 +164,36 @@ export default function Dashboard() {
         fetchResearchers();
     }, []);
 
+    function DeleteConfirmationModal({ isOpen, onClose, onConfirm }) {
+        if (!isOpen) return null;
+    
+        return (
+            <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
+                <div className="bg-white p-4 rounded-lg max-w-md w-full">
+                    <h2 className="text-xl font-semibold mb-4">Confirm Deletion</h2>
+                    <p>Are you sure you want to delete this researcher?</p>
+                    <div className="flex justify-end gap-2 mt-4">
+                        <button onClick={onClose} className="px-4 py-2 bg-gray-200 text-gray-800 rounded hover:bg-gray-300">Cancel</button>
+                        <button onClick={onConfirm} className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600">Delete</button>
+                    </div>
+                </div>
+            </div>
+        );
+    }
+
+    const handleDeleteClick = (researcherId) => {
+        setSelectedResearcherId(researcherId);
+        setIsDeleteModalOpen(true);
+    };
+
+    const handleConfirmDeletion = async () => {
+        if (selectedResearcherId !== null) {
+            await handleRemoveResearcher(selectedResearcherId);
+            setIsDeleteModalOpen(false); // Close the modal after deletion
+            setSelectedResearcherId(null); // Reset the selected ID
+        }
+    };
+
     // function to edit a researcher
     function EditResearcherModal({ isOpen, onClose, researcher, onSave }) {
         const [email, setEmail] = useState(researcher?.email || "");
@@ -185,7 +223,7 @@ export default function Dashboard() {
 
         return (
             <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
-                <div className="bg-white p-4 rounded-lg max-w-lg w-full">
+                <div className=" p-4 rounded-lg max-w-lg w-full">
                     <h2 className="text-xl font-semibold mb-4">
                         Edit Researcher
                     </h2>
@@ -231,7 +269,7 @@ export default function Dashboard() {
                         </button>
                         <button
                             onClick={handleSaveReasearcher}
-                            className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+                            className="px-4 py-2 bg-teal-600 text-white rounded hover:bg-blue-600"
                         >
                             Save
                         </button>
@@ -270,21 +308,24 @@ export default function Dashboard() {
 
     return (
         <main>
-            <div className="flex flex-1 min-h-screen relative bg-gray-100 items-center justify-center">
-                <div className="absolute top-4 right-8">
+            <nav className=" text-white p-3 w-full fixed top-0 left-0 z-50 " style={{ boxShadow: '0 2px 4px rgba(0,0,0,0.1)' }}>
+                <div className="container mx-auto flex justify-between items-center">
+                    <img src="/images/septon_logo.png" alt="Logo" className="px-8 h-12 mr-8" />
                     <button
                         onClick={handleLogout}
-                        className="text-blue-500 border border-blue-500 border-2 hover:bg-blue-500 hover:text-white font-bold py-2 px-4 rounded"
+                        className="px-8 text-teal-600 border border-teal-600 border-2 hover:text-white  hover:bg-teal-600 duration-300 font-bold py-2 px-4 rounded"
                     >
                         Logout
                     </button>
                 </div>
-                <div className="bg-white shadow-lg flex h-4/5 w-3/4 p-4">
-                    <div className="bg-white flex flex-col items-center justify-center w-1/2 h-[500px]">
-                        <h2 className="text-blue-500 text-4xl font-bold pb-4 select-none">
+            </nav>
+            <div className="flex flex-1 min-h-screen relative bg-gray-100 items-center justify-center">
+                <div className="flex h-4/5 w-3/4 p-4 py-10">
+                    <div className=" flex flex-col items-center justify-center w-1/2 h-[500px]">
+                        <h2 className="text-teal-600 text-4xl font-bold pb-4 select-none">
                             Researchers List
                         </h2>
-                        <div className="bg-white flex flex-col h-3/5 w-3/4 overflow-y-scroll shadow-lg rounded-lg">
+                        <div className="flex flex-col h-3/5 w-3/4 overflow-y-scroll shadow-lg rounded-lg">
                             {researchers.map((researcher) => (
                                 <div
                                     key={researcher.id}
@@ -305,15 +346,14 @@ export default function Dashboard() {
                                             onClick={() =>
                                                 handleEditResearcher(researcher)
                                             }
-                                            className="bg-blue-500 text-white p-2 rounded hover:bg-blue-600 ml-4 hover:scale-110"
+                                            className="bg-teal-600 text-white p-2 rounded hover:bg-blue-600 ml-4 hover:scale-110"
                                         />
                                         <FontAwesomeIcon
                                             onClick={() =>
-                                                handleRemoveResearcher(
-                                                    researcher.user_id
-                                                )
+                                                handleDeleteClick(researcher.user_id)
                                             }
                                             icon={faTrashCan}
+                                            
                                             className="bg-red-500 text-white p-2 rounded hover:bg-red-600 ml-4 hover:scale-110"
                                         />
                                     </div>
@@ -321,26 +361,14 @@ export default function Dashboard() {
                             ))}
                         </div>
                     </div>
-                    <div className="bg-white flex flex-col  items-center justify-center w-1/2 border-l-2 border-gray-200 h-[500px]">
-                        <h1 className="text-blue-500 text-4xl font-bold pb-4 select-none">
+                    <div className=" flex flex-col  items-center justify-center w-1/2 border-l-2 border-gray-200 h-[500px]">
+                        <h1 className="text-teal-600 text-4xl font-bold pb-4 select-none">
                             Add a researcher
                         </h1>
                         <form
                             onSubmit={handleAddResearcher}
                             className="flex flex-col items-center justify-center w-full"
                         >
-                            <input
-                                type="text"
-                                placeholder="Email Address"
-                                value={email}
-                                onChange={(e) => {
-                                    setEmail(e.target.value),
-                                        setErrorMessage("");
-                                }}
-                                className={`outline-none duration-300 border-solid border-2 ${errorMessage
-                                    ? "border-red-500"
-                                    : "border-gray-200"
-                                    } p-2 w-full max-w-[30ch] rounded-lg bg-white mb-4`} />
                             <input
                                 type="text"
                                 placeholder="First Name"
@@ -352,7 +380,7 @@ export default function Dashboard() {
                                 className={`outline-none duration-300 border-solid border-2 ${errorMessage
                                     ? "border-red-500"
                                     : "border-gray-200"
-                                    } p-2 w-full max-w-[30ch] rounded-lg bg-white mb-4`}
+                                    } p-2 w-full max-w-[30ch] rounded-lg mb-4`}
                             />
                             <input
                                 type="text"
@@ -365,7 +393,19 @@ export default function Dashboard() {
                                 className={`outline-none duration-300 border-solid border-2 ${errorMessage
                                     ? "border-red-500"
                                     : "border-gray-200"
-                                    } p-2 w-full max-w-[30ch] rounded-lg bg-white mb-4`} />
+                                    } p-2 w-full max-w-[30ch] rounded-lg mb-4`} />
+                            <input
+                                type="text"
+                                placeholder="Email Address"
+                                value={email}
+                                onChange={(e) => {
+                                    setEmail(e.target.value),
+                                        setErrorMessage("");
+                                }}
+                                className={`outline-none duration-300 border-solid border-2 ${errorMessage
+                                    ? "border-red-500"
+                                    : "border-gray-200"
+                                    } p-2 w-full max-w-[30ch] rounded-lg mb-4`} />
                             <input
                                 type="text"
                                 placeholder="Affiliation"
@@ -377,7 +417,7 @@ export default function Dashboard() {
                                 className={`outline-none duration-300 border-solid border-2 ${errorMessage
                                     ? "border-red-500"
                                     : "border-gray-200"
-                                    } p-2 w-full max-w-[30ch] rounded-lg bg-white mb-4`} />
+                                    } p-2 w-full max-w-[30ch] rounded-lg mb-4`} />
                             {errorMessage && (
                                 <div className="text-red-500 mb-4">
                                     {errorMessage}
@@ -385,7 +425,7 @@ export default function Dashboard() {
                             )}
                             <button
                                 type="submit"
-                                className="bg-blue-500 text-gray-100 rounded-lg w-[26ch] py-1.5 select-none hover:bg-blue-600 duration-300 mb-2"
+                                className="bg-teal-600 text-gray-100 rounded-lg w-[26ch] py-1.5 select-none hover:bg-blue-600 duration-300 mb-2"
                             >
                                 Add
                             </button>
@@ -402,6 +442,11 @@ export default function Dashboard() {
                     fetchResearchers(); // Fetch updated list of researchers
                     setIsEditModalOpen(false); // Close the modal after saving
                 }}
+            />
+            <DeleteConfirmationModal
+                isOpen={isDeleteModalOpen}
+                onClose={() => setIsDeleteModalOpen(false)}
+                onConfirm={() => handleRemoveResearcher(selectedResearcherId)}
             />
         </main>
     );

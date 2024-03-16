@@ -3,6 +3,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { jwtDecode } from "jwt-decode";
 
+
 /**
  * Login page: Allows Admin and Researcher to login to the respective dashboards
  */
@@ -83,15 +84,16 @@ export default function Login() {
     const handleChangePasswordClick = () => {
         router.push('/changepassword');
     };
-
     return (
         <main>
-            <nav className="bg-blue-500 text-white p-3 w-full fixed top-0 left-0 z-50">
+
+            <nav className=" text-white p-3 w-full fixed top-0 left-0 z-50 " style={{ boxShadow: '0 2px 4px rgba(0,0,0,0.1)' }}>
                 <div className="container mx-auto flex justify-between items-center">
-                    <h1 className="text-lg font-bold"></h1>
+                    <img src="/images/septon_logo.png" alt="Logo" className="h-12 mr-8" />
                     <button
                         onClick={handleChangePasswordClick}
-                        className=" hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+                        className="text-teal-600 text-lg hover:bg-teal-700 hover:text-white duration-300 font-bold py-2 px-4 rounded"
+
                     >
                         Change Password
                     </button>
@@ -99,7 +101,7 @@ export default function Login() {
             </nav>
             <div className="flex flex-1 min-h-screen relative bg-gray-100 items-center justify-center">
                 <div className="flex flex-col bg-white shadow-lg py-16 px-32 items-center justify-center">
-                    <h1 className="text-blue-500 text-4xl font-bold pb-4 select-none">
+                    <h1 className="text-teal-600 text-4xl font-bold pb-4 select-none">
                         MedTech Chain
                     </h1>
                     <form
@@ -141,7 +143,7 @@ export default function Login() {
                         )}
                         <button
                             type="submit"
-                            className="bg-blue-500 text-gray-100 rounded-lg w-[26ch] py-1.5 select-none hover:bg-blue-600 duration-300 mb-2"
+                            className="bg-teal-600 text-gray-100 rounded-lg w-[26ch] py-1.5 select-none hover:bg-teal-700 duration-300 mb-2"
                         >
                             Sign In
                         </button>

@@ -14,14 +14,14 @@ export default function Researcher() {
     const [availableSpecifications, setAvailableSpecifications] = useState([]);
     const [version, setVersion] = useState("");
     const [versionCount, setVersionCount] = useState(null); // Temporarily used for the demo
-   
+
     const API_URL =
         process.env.NEXT_PUBLIC_API_URL === undefined
             ? "http://localhost:8088"
             : process.env.NEXT_PUBLIC_API_URL;
 
-     // Function to handle logout
-     const handleLogout = () => {
+    // Function to handle logout
+    const handleLogout = () => {
         // Clear user token or session data
         localStorage.removeItem("token");
 
@@ -107,7 +107,7 @@ export default function Researcher() {
             return (
                 <div className="bg-white shadow-lg flex w-full max-w-6xl mx-4 my-8 p-8 space-x-8 min-h-full h-300">
                     <div className="flex flex-col items-center justify-center w-1/2 space-y-4">
-                        <h1 className="text-blue-500 text-3xl font-bold">
+                        <h1 className="text-teal-600 text-3xl font-bold">
                             Query Selection
                         </h1>
                         <input
@@ -119,7 +119,7 @@ export default function Researcher() {
                         />
                         <button
                             type="button"
-                            className="w-full py-3 bg-blue-500 text-gray-100 rounded-lg w-[26ch] py-1.5 select-none hover:bg-blue-600 duration-300 mb-2"
+                            className="w-full py-3 bg-teal-600 text-gray-100 rounded-lg w-[26ch] py-1.5 select-none hover:bg-teal-700 duration-300 mb-2"
                             onClick={handleGetVersion}
                         >
                             Get Watch Version
@@ -127,7 +127,7 @@ export default function Researcher() {
                     </div>
 
                     <div className="flex flex-col items-center justify-center w-1/2 space-y-4">
-                        <h1 className="text-blue-500 text-3xl font-bold">
+                        <h1 className="text-teal-600 text-3xl font-bold">
                             Query Results
                         </h1>
                         {versionCount && (
@@ -143,22 +143,19 @@ export default function Researcher() {
             return (
                 <div className="bg-white shadow-lg flex w-full max-w-6xl mx-4 my-8 p-8 space-x-8 min-h-full h-300">
                     <div className="flex flex-col items-center justify-center w-1/2 space-y-4">
-                        <h1 className="text-blue-500 text-3xl font-bold">
+                        <h1 className="text-teal-600 text-3xl font-bold">
                             Query Selection
                         </h1>
-                        <select className="w-full p-3 border border-gray-300 rounded" value={deviceType} onChange={e => setDeviceType(e.target.value)}>
+                        <select className="w-full p-3 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-teal-600 focus:border-transparent" value={deviceType} onChange={e => setDeviceType(e.target.value)}>
                             <option value="">Select Device Type</option>
                             {deviceTypes.map(type => <option key={type} value={type}>{type}</option>)}
                         </select>
-                        <select className="w-full p-3 border border-gray-300 rounded" value={specification} onChange={e => setSpecification(e.target.value)}>
+
+                        <select className="w-full p-3 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-teal-600 focus:border-transparent" value={specification} onChange={e => setSpecification(e.target.value)}>
                             <option value="">Select Specification</option>
                             {availableSpecifications.map(spec => (
                                 <option key={spec} value={spec}>{spec.replace(/_/g, ' ')}</option> // Replace underscores with spaces for readability
                             ))}
-                        </select>
-                        <select className="w-full p-3 border border-gray-300 rounded" value={operation} onChange={e => setOperation(e.target.value)}>
-                            <option value="">Select Operation</option>
-                            {operations.map(op => <option key={op} value={op}>{op}</option>)}
                         </select>
                         <input
                             type="text"
@@ -169,19 +166,60 @@ export default function Researcher() {
                         />
                         <button
                             type="button"
-                            className="w-full py-3 bg-blue-500 text-gray-100 rounded-lg w-[26ch] py-1.5 select-none hover:bg-blue-600 duration-300 mb-2"
+                            className="w-full py-3 bg-teal-600 text-gray-100 rounded-lg w-[26ch] py-1.5 select-none hover:bg-teal-700 duration-300 mb-2"
                         >
                             Execute Query
                         </button>
                     </div>
 
                     <div className="flex flex-col items-center justify-center w-1/2 space-y-4">
-                        <h1 className="text-blue-500 text-3xl font-bold">
-                            Query Results
+                        <h1 className="text-teal-600 text-3xl font-bold">
+                            Count Results
                         </h1>
                     </div>
                 </div>
             );
+            }
+            if (view === 'Average') {
+                return (
+                    <div className="bg-white shadow-lg flex w-full max-w-6xl mx-4 my-8 p-8 space-x-8 min-h-full h-300">
+                        <div className="flex flex-col items-center justify-center w-1/2 space-y-4">
+                            <h1 className="text-teal-600 text-3xl font-bold">
+                                Query Selection
+                            </h1>
+                            <select className="w-full p-3 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-teal-600 focus:border-transparent" value={deviceType} onChange={e => setDeviceType(e.target.value)}>
+                                <option value="">Select Device Type</option>
+                                {deviceTypes.map(type => <option key={type} value={type}>{type}</option>)}
+                            </select>
+    
+                            <select className="w-full p-3 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-teal-600 focus:border-transparent" value={specification} onChange={e => setSpecification(e.target.value)}>
+                                <option value="">Select Specification</option>
+                                {availableSpecifications.map(spec => (
+                                    <option key={spec} value={spec}>{spec.replace(/_/g, ' ')}</option> // Replace underscores with spaces for readability
+                                ))}
+                            </select>
+                            <input
+                                type="text"
+                                placeholder="Value"
+                                className="w-full p-3 border border-gray-300 rounded"
+                                value={value}
+                                onChange={e => setValue(e.target.value)}
+                            />
+                            <button
+                                type="button"
+                                className="w-full py-3 bg-teal-600 text-gray-100 rounded-lg w-[26ch] py-1.5 select-none hover:bg-teal-700 duration-300 mb-2"
+                            >
+                                Execute Query
+                            </button>
+                        </div>
+    
+                        <div className="flex flex-col items-center justify-center w-1/2 space-y-4">
+                            <h1 className="text-teal-600 text-3xl font-bold">
+                                Average Results
+                            </h1>
+                        </div>
+                    </div>
+                );
         } else {
             return (
                 <div className="flex w-full h-full bg-white">
@@ -193,19 +231,21 @@ export default function Researcher() {
     return (
         <main>
             <div className="flex flex-1 min-h-screen bg-gray-100 items-center justify-center flex-col">
-            <div className="absolute top-4 right-8">
-                    <button
-                        onClick={handleLogout}
-                        className="text-blue-500 border border-blue-500 border-2 hover:bg-blue-500 hover:text-white font-bold py-2 px-4 rounded"
-                    >
-                        Logout
-                    </button>
-                </div>
-                <div className="flex justify-center space-x-4 py-4">
-                    <button className="py-2 px-4 bg-blue-500 text-white rounded hover:bg-blue-600" onClick={() => setView('Count')}>Count</button>
-                    <button className="py-2 px-4 bg-blue-500 text-white rounded hover:bg-blue-600" onClick={() => setView('Display')}>Display</button>
-                    <button className="py-2 px-4 bg-blue-500 text-white rounded hover:bg-blue-600" onClick={() => setView('Average')}>Average</button>
-                    <button className="py-2 px-4 bg-blue-500 text-white rounded hover:bg-blue-600" onClick={() => setView('Demo')}>Demo</button>
+                <nav className=" text-white p-3 w-full fixed top-0 left-0 z-50 " style={{ boxShadow: '0 2px 4px rgba(0,0,0,0.1)' }}>
+                    <div className="container mx-auto flex justify-between items-center">
+                        <img src="/images/septon_logo.png" alt="Logo" className="px-8 h-12 mr-8" />
+                        <button
+                            onClick={handleLogout}
+                            className="px-8 text-teal-600 border border-teal-600 border-2 hover:text-white  hover:bg-teal-600 duration-300 font-bold py-2 px-4 rounded"
+                        >
+                            Logout
+                        </button>
+                    </div>
+                </nav>
+                <div className="justify-center space-x-6 py-4 mt-16"> {/* Added mt-16 for top margin */}
+                    <button className="py-2 px-4 bg-teal-600 text-white rounded hover:bg-teal-700" onClick={() => setView('Count')}>Count</button>
+                    <button className="py-2 px-4 bg-teal-600 text-white rounded hover:bg-teal-700" onClick={() => setView('Average')}>Average</button>
+                    <button className="py-2 px-4 bg-teal-600 text-white rounded hover:bg-teal-700" onClick={() => setView('Demo')}>Demo</button>
                 </div>
 
                 {renderContent()}
