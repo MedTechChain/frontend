@@ -84,12 +84,22 @@ export default function Login() {
     const handleChangePasswordClick = () => {
         router.push('/changepassword');
     };
+
+    // Footer component
+    const Footer = () => (
+        <footer className="text-center text-sm text-gray-500 py-4 absolute bottom-0 w-full">
+            © {new Date().getFullYear()} Septon. All rights reserved.
+        </footer>
+    );
+
     return (
         <main>
 
             <nav className=" text-white p-3 w-full fixed top-0 left-0 z-50 " style={{ boxShadow: '0 2px 4px rgba(0,0,0,0.1)' }}>
                 <div className="container mx-auto flex justify-between items-center">
-                    <img src="/images/septon_logo.png" alt="Logo" className="h-12 mr-8" />
+                    <a href="https://septon-project.eu/" target="_blank" rel="noopener noreferrer">
+                        <img src="/images/septon_logo.png" alt="Logo" className="px-5 h-16 mr-10" />
+                    </a>
                     <button
                         onClick={handleChangePasswordClick}
                         className="text-teal-600 text-lg hover:bg-teal-700 hover:text-white duration-300 font-bold py-2 px-4 rounded"
@@ -129,7 +139,7 @@ export default function Login() {
                             className={`outline-none duration-300 border-solid border-2 ${errorMessage
                                 ? "border-red-500"
                                 : "border-gray-200"
-                                } p-2 w-full max-w-[30ch] rounded-lg bg-white mb-4`} 
+                                } p-2 w-full max-w-[30ch] rounded-lg bg-white mb-4`}
                             value={password}
                             onChange={(e) => {
                                 setPassword(e.target.value),
@@ -150,6 +160,7 @@ export default function Login() {
                     </form>
                 </div>
             </div>
+            <Footer />
         </main>
     );
 }

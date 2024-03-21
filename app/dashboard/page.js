@@ -301,11 +301,20 @@ export default function Dashboard() {
         }
     }
 
+    // Footer component
+    const Footer = () => (
+        <footer className="text-center text-sm text-gray-500 py-4 absolute bottom-0 w-full">
+            © {new Date().getFullYear()} Septon. All rights reserved.
+        </footer>
+    );
+
     return (
         <main>
             <nav className=" text-white p-3 w-full fixed top-0 left-0 z-50 " style={{ boxShadow: '0 2px 4px rgba(0,0,0,0.1)' }}>
                 <div className="container mx-auto flex justify-between items-center">
-                    <img src="/images/septon_logo.png" alt="Logo" className="px-8 h-12 mr-8" />
+                    <a href="https://septon-project.eu/" target="_blank" rel="noopener noreferrer">
+            <img src="/images/septon_logo.png" alt="Logo" className="px-5 h-16 mr-10" />
+        </a>
                     <button
                         onClick={handleLogout}
                         className="px-8 text-teal-600 border border-teal-600 border-2 hover:text-white  hover:bg-teal-600 duration-300 font-bold py-2 px-4 rounded"
@@ -320,7 +329,7 @@ export default function Dashboard() {
                         <h2 className="text-teal-600 text-4xl font-bold pb-4 select-none">
                             Researchers List
                         </h2>
-                        <div className="flex flex-col h-3/5 w-3/4 overflow-y-scroll shadow-lg rounded-lg">
+                        <div className="flex flex-col bg-white h-3/5 w-3/4 overflow-y-scroll shadow-lg rounded-lg">
                             {researchers.map((researcher) => (
                                 <div
                                     key={researcher.id}
@@ -446,6 +455,7 @@ export default function Dashboard() {
                     setIsDeleteModalOpen(false)
                 }}
             />
+            <Footer />
         </main>
     );
 }

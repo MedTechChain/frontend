@@ -179,47 +179,47 @@ export default function Researcher() {
                     </div>
                 </div>
             );
-            }
-            if (view === 'Average') {
-                return (
-                    <div className="bg-white shadow-lg flex w-full max-w-6xl mx-4 my-8 p-8 space-x-8 min-h-full h-300">
-                        <div className="flex flex-col items-center justify-center w-1/2 space-y-4">
-                            <h1 className="text-teal-600 text-3xl font-bold">
-                                Query Selection
-                            </h1>
-                            <select className="w-full p-3 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-teal-600 focus:border-transparent" value={deviceType} onChange={e => setDeviceType(e.target.value)}>
-                                <option value="">Select Device Type</option>
-                                {deviceTypes.map(type => <option key={type} value={type}>{type}</option>)}
-                            </select>
-    
-                            <select className="w-full p-3 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-teal-600 focus:border-transparent" value={specification} onChange={e => setSpecification(e.target.value)}>
-                                <option value="">Select Specification</option>
-                                {availableSpecifications.map(spec => (
-                                    <option key={spec} value={spec}>{spec.replace(/_/g, ' ')}</option> // Replace underscores with spaces for readability
-                                ))}
-                            </select>
-                            <input
-                                type="text"
-                                placeholder="Value"
-                                className="w-full p-3 border border-gray-300 rounded"
-                                value={value}
-                                onChange={e => setValue(e.target.value)}
-                            />
-                            <button
-                                type="button"
-                                className="w-full py-3 bg-teal-600 text-gray-100 rounded-lg w-[26ch] py-1.5 select-none hover:bg-teal-700 duration-300 mb-2"
-                            >
-                                Execute Query
-                            </button>
-                        </div>
-    
-                        <div className="flex flex-col items-center justify-center w-1/2 space-y-4">
-                            <h1 className="text-teal-600 text-3xl font-bold">
-                                Average Results
-                            </h1>
-                        </div>
+        }
+        if (view === 'Average') {
+            return (
+                <div className="bg-white shadow-lg flex w-full max-w-6xl mx-4 my-8 p-8 space-x-8 min-h-full h-300">
+                    <div className="flex flex-col items-center justify-center w-1/2 space-y-4">
+                        <h1 className="text-teal-600 text-3xl font-bold">
+                            Query Selection
+                        </h1>
+                        <select className="w-full p-3 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-teal-600 focus:border-transparent" value={deviceType} onChange={e => setDeviceType(e.target.value)}>
+                            <option value="">Select Device Type</option>
+                            {deviceTypes.map(type => <option key={type} value={type}>{type}</option>)}
+                        </select>
+
+                        <select className="w-full p-3 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-teal-600 focus:border-transparent" value={specification} onChange={e => setSpecification(e.target.value)}>
+                            <option value="">Select Specification</option>
+                            {availableSpecifications.map(spec => (
+                                <option key={spec} value={spec}>{spec.replace(/_/g, ' ')}</option> // Replace underscores with spaces for readability
+                            ))}
+                        </select>
+                        <input
+                            type="text"
+                            placeholder="Value"
+                            className="w-full p-3 border border-gray-300 rounded"
+                            value={value}
+                            onChange={e => setValue(e.target.value)}
+                        />
+                        <button
+                            type="button"
+                            className="w-full py-3 bg-teal-600 text-gray-100 rounded-lg w-[26ch] py-1.5 select-none hover:bg-teal-700 duration-300 mb-2"
+                        >
+                            Execute Query
+                        </button>
                     </div>
-                );
+
+                    <div className="flex flex-col items-center justify-center w-1/2 space-y-4">
+                        <h1 className="text-teal-600 text-3xl font-bold">
+                            Average Results
+                        </h1>
+                    </div>
+                </div>
+            );
         } else {
             return (
                 <div className="flex w-full h-full bg-white">
@@ -228,12 +228,21 @@ export default function Researcher() {
         }
     };
 
+    // Footer component
+    const Footer = () => (
+        <footer className="text-center text-sm text-gray-500 py-4 absolute bottom-0 w-full">
+            © {new Date().getFullYear()} Septon. All rights reserved.
+        </footer>
+    );
+
     return (
         <main>
             <div className="flex flex-1 min-h-screen bg-gray-100 items-center justify-center flex-col">
                 <nav className=" text-white p-3 w-full fixed top-0 left-0 z-50 " style={{ boxShadow: '0 2px 4px rgba(0,0,0,0.1)' }}>
                     <div className="container mx-auto flex justify-between items-center">
-                        <img src="/images/septon_logo.png" alt="Logo" className="px-8 h-12 mr-8" />
+                        <a href="https://septon-project.eu/" target="_blank" rel="noopener noreferrer">
+                            <img src="/images/septon_logo.png" alt="Logo" className="px-5 h-16 mr-10" />
+                        </a>
                         <button
                             onClick={handleLogout}
                             className="px-8 text-teal-600 border border-teal-600 border-2 hover:text-white  hover:bg-teal-600 duration-300 font-bold py-2 px-4 rounded"
@@ -250,6 +259,7 @@ export default function Researcher() {
 
                 {renderContent()}
             </div>
+            <Footer />
         </main>
     );
 }
