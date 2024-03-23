@@ -1,0 +1,136 @@
+"use client";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+
+
+export default function ResearcherAverage() {
+    const router = useRouter();
+
+    const [deviceType, setDeviceType] = useState('');
+    const [specification, setSpecification] = useState('');
+    const [availableSpecifications, setAvailableSpecifications] = useState([]);
+
+    const API_URL =
+        process.env.NEXT_PUBLIC_API_URL === undefined
+            ? "http://localhost:8088"
+            : process.env.NEXT_PUBLIC_API_URL;
+
+    // Function to handle logout
+    const handleLogout = () => {
+        // Clear user token or session data
+        localStorage.removeItem("token");
+
+        // Redirect to login page or any other page you consider as the logout landing page
+        router.push('/login');
+    };
+
+    // Device types
+    const deviceTypes = ["Wearable Device", "Bedside Monitor", "Both"];
+
+    // Specifications for each device type
+    const bedsideMonitorSpecs = [
+        "device_manufacturer", "software_version", "has_ecg_module", "has_resp_module", "has_spo2_module",
+        "has_nibp_module", "has_temp_module", "has_2_channel_invbp_module", "has_sidestream_co2_module",
+        "has_entropy_module", "has_sidestream_n2o_module", "has_neuromuscular_transmission_module",
+        "has_cardiac_output_module"
+    ];
+
+    const wearableDeviceSpecs = [
+        "device_serial_number", "software_version", "has_heart_rate_sensor", "has_accelerometer",
+        "has_gyroscope", "has_barometric", "has_microphone", "has_magnetometer", "has_temperature_sensor", "has_gps"
+    ];
+
+    const commonSpecs = [
+        "software_version"
+    ];
+
+    const operations = ["=", "<", ">", ">=", "<="];
+
+    // Set available specifications based on the selected device type
+    useEffect(() => {
+        switch (deviceType) {
+            case "Wearable Device":
+                setAvailableSpecifications(wearableDeviceSpecs);
+                break;
+            case "Bedside Monitor":
+                setAvailableSpecifications(bedsideMonitorSpecs);
+                break;
+            case "Both":
+                setAvailableSpecifications(commonSpecs);
+                break;
+            default:
+                setAvailableSpecifications([]);
+        }
+    }, [deviceType]);
+
+    // Footer component
+    const Footer = () => (
+        <footer className="text-center text-sm text-gray-500 py-4 absolute bottom-0 w-full">
+            © {new Date().getFullYear()} Septon. All rights reserved.
+        </footer>
+    );
+
+    // Function to handle redirection to the Change Password page
+    const handleCalculationChange = () => {
+        router.push('/researchercount');
+    };
+
+    return (
+        <main>
+            <div className="flex flex-1 min-h-screen bg-gray-100 items-center justify-center flex-col">
+                <nav className=" text-white p-3 w-full fixed top-0 left-0 z-50 " style={{ boxShadow: '0 2px 4px rgba(0,0,0,0.1)' }}>
+                    <div className="container mx-auto flex justify-between items-center">
+                        <a href="https://septon-project.eu/" target="_blank" rel="noopener noreferrer">
+                            <img src="/images/septon_logo.png" alt="Logo" className="px-5 h-16 mr-10" />
+                        </a>
+                        <button
+                            onClick={handleLogout}
+                            className="px-8 text-teal-600 border border-teal-600 border-2 hover:text-white  hover:bg-teal-600 duration-300 font-bold py-2 px-4 rounded"
+                        >
+                            Logout
+                        </button>
+                    </div>
+                </nav>
+                <div className="justify-center space-x-6 py-4 mt-16"> {/* Added mt-16 for top margin */}
+                    <button
+                        className="py-2 px-4 bg-teal-600 text-white rounded hover:bg-teal-700"
+                        onClick={handleCalculationChange}
+                    >Count</button>
+                </div>
+
+
+                <div className="bg-white shadow-lg flex w-full max-w-6xl mx-4 my-8 p-8 space-x-8 min-h-full h-300">
+                    <div className="flex flex-col items-center justify-center w-1/2 space-y-4">
+                        <h1 className="text-teal-600 text-3xl font-bold">
+                            Query Selection
+                        </h1>
+                        <select className="w-full p-3 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-teal-600 focus:border-transparent" value={deviceType} onChange={e => setDeviceType(e.target.value)}>
+                            <option value="">Select Device Type</option>
+                            {deviceTypes.map(type => <option key={type} value={type}>{type}</option>)}
+                        </select>
+
+                        <select className="w-full p-3 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-teal-600 focus:border-transparent" value={specification} onChange={e => setSpecification(e.target.value)}>
+                            <option value="">Select Specification</option>
+                            {availableSpecifications.map(spec => (
+                                <option key={spec} value={spec}>{spec.replace(/_/g, ' ')}</option> // Replace underscores with spaces for readability
+                            ))}
+                        </select>
+                        <button
+                            type="button"
+                            className="w-full py-3 bg-teal-600 text-gray-100 rounded-lg w-[26ch] py-1.5 select-none hover:bg-teal-700 duration-300 mb-2"
+                        >
+                            Execute Query
+                        </button>
+                    </div>
+
+                    <div className="flex flex-col items-center justify-center w-1/2 space-y-4">
+                        <h1 className="text-teal-600 text-3xl font-bold">
+                            Average Results
+                        </h1>
+                    </div>
+                </div>
+            </div>
+            <Footer />
+        </main >
+    );
+}

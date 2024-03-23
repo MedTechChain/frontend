@@ -72,7 +72,7 @@ export default function Login() {
             if (decoded.role == "ADMIN") {
                 router.push("/dashboard");
             } else if (decoded.role == "RESEARCHER") {
-                router.push("/researcher");
+                router.push("/researchercount");
             }
         } catch (error) {
             console.error("An error occurred during login:", error);

@@ -3,7 +3,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
 
-export default function Researcher() {
+export default function ResearcherCount() {
     const router = useRouter();
 
     const [deviceType, setDeviceType] = useState('');
@@ -101,6 +101,12 @@ export default function Researcher() {
         }
     }
 
+    // Function to handle redirection to the Change Password page
+    const handleCalculationChange = () => {
+        router.push('/researcheraverage');
+    };
+
+
     // Function to render content based on selected view
     const renderContent = () => {
         if (view === 'Demo') {
@@ -180,52 +186,6 @@ export default function Researcher() {
                 </div>
             );
         }
-        if (view === 'Average') {
-            return (
-                <div className="bg-white shadow-lg flex w-full max-w-6xl mx-4 my-8 p-8 space-x-8 min-h-full h-300">
-                    <div className="flex flex-col items-center justify-center w-1/2 space-y-4">
-                        <h1 className="text-teal-600 text-3xl font-bold">
-                            Query Selection
-                        </h1>
-                        <select className="w-full p-3 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-teal-600 focus:border-transparent" value={deviceType} onChange={e => setDeviceType(e.target.value)}>
-                            <option value="">Select Device Type</option>
-                            {deviceTypes.map(type => <option key={type} value={type}>{type}</option>)}
-                        </select>
-
-                        <select className="w-full p-3 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-teal-600 focus:border-transparent" value={specification} onChange={e => setSpecification(e.target.value)}>
-                            <option value="">Select Specification</option>
-                            {availableSpecifications.map(spec => (
-                                <option key={spec} value={spec}>{spec.replace(/_/g, ' ')}</option> // Replace underscores with spaces for readability
-                            ))}
-                        </select>
-                        <input
-                            type="text"
-                            placeholder="Value"
-                            className="w-full p-3 border border-gray-300 rounded"
-                            value={value}
-                            onChange={e => setValue(e.target.value)}
-                        />
-                        <button
-                            type="button"
-                            className="w-full py-3 bg-teal-600 text-gray-100 rounded-lg w-[26ch] py-1.5 select-none hover:bg-teal-700 duration-300 mb-2"
-                        >
-                            Execute Query
-                        </button>
-                    </div>
-
-                    <div className="flex flex-col items-center justify-center w-1/2 space-y-4">
-                        <h1 className="text-teal-600 text-3xl font-bold">
-                            Average Results
-                        </h1>
-                    </div>
-                </div>
-            );
-        } else {
-            return (
-                <div className="flex w-full h-full bg-white">
-                </div>
-            );
-        }
     };
 
     // Footer component
@@ -252,8 +212,7 @@ export default function Researcher() {
                     </div>
                 </nav>
                 <div className="justify-center space-x-6 py-4 mt-16"> {/* Added mt-16 for top margin */}
-                    <button className="py-2 px-4 bg-teal-600 text-white rounded hover:bg-teal-700" onClick={() => setView('Count')}>Count</button>
-                    <button className="py-2 px-4 bg-teal-600 text-white rounded hover:bg-teal-700" onClick={() => setView('Average')}>Average</button>
+                    <button className="py-2 px-4 bg-teal-600 text-white rounded hover:bg-teal-700" onClick={handleCalculationChange}>Average</button>
                     <button className="py-2 px-4 bg-teal-600 text-white rounded hover:bg-teal-700" onClick={() => setView('Demo')}>Demo</button>
                 </div>
 
