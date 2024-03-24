@@ -24,10 +24,18 @@ export default function Dashboard() {
 
     const [researchers, setResearchers] = useState([]);
 
+    const [encryptionScheme, setEncryptionScheme] = useState("Paillier PHE");
+    const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+
     // Function to open the edit modal for a researcher
     const handleEditResearcher = (researcher) => {
         setCurrentResearcher(researcher);
         setIsEditModalOpen(true);
+    };
+
+    // Function to toggle the dropdown for encryption schemes
+    const toggleDropdown = () => {
+        setIsDropdownOpen(!isDropdownOpen);
     };
 
     // API URL from environment values or use default value
@@ -154,14 +162,30 @@ export default function Dashboard() {
         }
     }
 
-    // useEffect hook to fetch the list of researchers when the component mounts
     useEffect(() => {
+        // Initial fetch of researchers
         fetchResearchers();
-    }, []);
 
+        // Function to handle click outside the dropdown to close it
+        const handleClickOutside = (event) => {
+            if (isDropdownOpen && (!event.target.closest('.dropdown-container') && !event.target.closest('#menu-button'))) {
+                setIsDropdownOpen(false);
+            }
+        };
+
+        // Add event listener to handle clicks outside the dropdown
+        document.addEventListener("mousedown", handleClickOutside);
+
+        // Cleanup function to remove the event listener
+        return () => {
+            document.removeEventListener("mousedown", handleClickOutside);
+        };
+    }, [API_URL, isDropdownOpen]); 
+
+    // Delete Confirmation Modal
     function DeleteConfirmationModal({ isOpen, onClose, onConfirm }) {
         if (!isOpen) return null;
-    
+
         return (
             <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
                 <div className="bg-white p-4 rounded-lg max-w-md w-full">
@@ -176,11 +200,13 @@ export default function Dashboard() {
         );
     }
 
+    // Function to handle delete click
     const handleDeleteClick = (researcherId) => {
         setSelectedResearcherId(researcherId);
         setIsDeleteModalOpen(true);
     };
 
+    // Function to handle confirm deletion
     const handleConfirmDeletion = async () => {
         if (selectedResearcherId !== null) {
             await handleRemoveResearcher(selectedResearcherId);
@@ -310,17 +336,56 @@ export default function Dashboard() {
 
     return (
         <main>
-            <nav className=" text-white p-3 w-full fixed top-0 left-0 z-50 " style={{ boxShadow: '0 2px 4px rgba(0,0,0,0.1)' }}>
+            <nav className="text-white p-3 w-full fixed top-0 left-0 z-50" style={{ boxShadow: '0 2px 4px rgba(0,0,0,0.1)' }}>
                 <div className="container mx-auto flex justify-between items-center">
+                    {/* Logo Section */}
                     <a href="https://septon-project.eu/" target="_blank" rel="noopener noreferrer">
-            <img src="/images/septon_logo.png" alt="Logo" className="px-5 h-16 mr-10" />
-        </a>
-                    <button
-                        onClick={handleLogout}
-                        className="px-8 text-teal-600 border border-teal-600 border-2 hover:text-white  hover:bg-teal-600 duration-300 font-bold py-2 px-4 rounded"
-                    >
-                        Logout
-                    </button>
+                        <img src="/images/septon_logo.png" alt="Logo" className="px-5 h-16" />
+                    </a>
+
+                    {/* Right Section - Encryption Option and Logout Button */}
+                    <div className="flex items-center">
+                        {/* Encryption Dropdown */}
+                        <div className="relative inline-block text-left mr-5"> {/* Added margin-right for spacing */}
+                            <button
+                                type="button"
+                                className="inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-3 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50"
+                                id="menu-button"
+                                aria-expanded={isDropdownOpen}
+                                aria-haspopup="true"
+                                onClick={toggleDropdown}
+                            >
+                                Encryption: {encryptionScheme}
+                                <svg className="-mr-1 ml-2 h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                                    <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
+                                </svg>
+                            </button>
+
+                            {isDropdownOpen && (
+                                <div
+                                    className="dropdown-container origin-top-right absolute right-0 mt-2 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 focus:outline-none"
+                                    role="menu"
+                                    aria-orientation="vertical"
+                                    aria-labelledby="menu-button"
+                                    tabIndex="-1"
+                                >
+                                    <div className="py-1" role="none">
+                                        <a href="#" className={`text-gray-700 block px-4 py-2 text-sm hover:bg-gray-200 ${encryptionScheme === "Paillier PHE" ? "text-teal-700" : ""}`} role="menuitem" tabIndex="-1" id="menu-item-0" onClick={() => setEncryptionScheme("Paillier PHE")}>Paillier PHE</a>
+                                        <a href="#" className={`text-gray-700 block px-4 py-2 text-sm hover:bg-gray-200 ${encryptionScheme === "RSA" ? "text-teal-700" : ""}`} role="menuitem" tabIndex="-1" id="menu-item-1" onClick={() => setEncryptionScheme("RSA")}>RSA</a>
+                                        <a href="#" className={`text-gray-700 block px-4 py-2 text-sm hover:bg-gray-200 ${encryptionScheme === "FHE" ? "text-teal-700" : ""}`} role="menuitem" tabIndex="-1" id="menu-item-2" onClick={() => setEncryptionScheme("FHE")}>FHE</a>
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+
+                        {/* Logout Button */}
+                        <button
+                            onClick={handleLogout}
+                            className="px-8 text-teal-600 border border-teal-600 border-2 hover:text-white hover:bg-teal-600 duration-300 font-bold py-2 px-4 rounded"
+                        >
+                            Logout
+                        </button>
+                    </div>
                 </div>
             </nav>
             <div className="flex flex-1 min-h-screen relative bg-gray-100 items-center justify-center">
@@ -357,7 +422,7 @@ export default function Dashboard() {
                                                 handleDeleteClick(researcher.user_id)
                                             }
                                             icon={faTrashCan}
-                                            
+
                                             className="bg-red-500 text-white p-2 rounded hover:bg-red-600 ml-4 hover:scale-110"
                                         />
                                     </div>
