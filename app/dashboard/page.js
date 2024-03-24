@@ -24,7 +24,7 @@ export default function Dashboard() {
 
     const [researchers, setResearchers] = useState([]);
 
-    const [encryptionScheme, setEncryptionScheme] = useState("Paillier PHE");
+    const [encryptionScheme, setEncryptionScheme] = useState("PHE");
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
     // Function to open the edit modal for a researcher
@@ -370,7 +370,7 @@ export default function Dashboard() {
                                     tabIndex="-1"
                                 >
                                     <div className="py-1" role="none">
-                                        <a href="#" className={`text-gray-700 block px-4 py-2 text-sm hover:bg-gray-200 ${encryptionScheme === "Paillier PHE" ? "text-teal-700" : ""}`} role="menuitem" tabIndex="-1" id="menu-item-0" onClick={() => setEncryptionScheme("Paillier PHE")}>Paillier PHE</a>
+                                        <a href="#" className={`text-gray-700 block px-4 py-2 text-sm hover:bg-gray-200 ${encryptionScheme === "PHE" ? "text-teal-700" : ""}`} role="menuitem" tabIndex="-1" id="menu-item-0" onClick={() => setEncryptionScheme("PHE")}>PHE</a>
                                         <a href="#" className={`text-gray-700 block px-4 py-2 text-sm hover:bg-gray-200 ${encryptionScheme === "RSA" ? "text-teal-700" : ""}`} role="menuitem" tabIndex="-1" id="menu-item-1" onClick={() => setEncryptionScheme("RSA")}>RSA</a>
                                         <a href="#" className={`text-gray-700 block px-4 py-2 text-sm hover:bg-gray-200 ${encryptionScheme === "FHE" ? "text-teal-700" : ""}`} role="menuitem" tabIndex="-1" id="menu-item-2" onClick={() => setEncryptionScheme("FHE")}>FHE</a>
                                     </div>
