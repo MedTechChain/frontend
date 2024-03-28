@@ -21,11 +21,10 @@ export default function Dashboard() {
     const [currentResearcher, setCurrentResearcher] = useState(null);
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
     const [selectedResearcherId, setSelectedResearcherId] = useState(null);
-
-    const [researchers, setResearchers] = useState([]);
-
     const [encryptionScheme, setEncryptionScheme] = useState("PHE");
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+
+    const [researchers, setResearchers] = useState([]);
 
     // Function to open the edit modal for a researcher
     const handleEditResearcher = (researcher) => {
