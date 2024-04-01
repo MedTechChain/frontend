@@ -8,7 +8,6 @@ export default function ResearcherCount() {
 
     const [deviceType, setDeviceType] = useState('');
     const [specification, setSpecification] = useState('');
-    const [value, setValue] = useState('');
     const [availableSpecifications, setAvailableSpecifications] = useState([]);
     const [hospital, setHospital] = useState('');
     const [medicalSpeciality, setMedicalSpeciality] = useState('');
@@ -36,28 +35,26 @@ export default function ResearcherCount() {
 
     // Specifications for each device type
     const portableDeviceSpecs = [
-        "medical_speciality", "manufacturer_name", "operating_system" // "operating_system_version"
-
+        "medical_speciality", "manufacturer_name", "operating_system"
     ];
 
     const wearableDeviceSpecs = [
-        "medical_speciality", "manufacturer_name", "operating_system" // "operating_system_version"
-
+        "medical_speciality", "manufacturer_name", "operating_system"
     ];
 
     const commonSpecs = [
-        "medical_speciality", "manufacturer_name", "operating_system" // "operating_system_version"
+        "medical_speciality", "manufacturer_name", "operating_system"
     ];
 
     // Hospital specifications
     const hospitalSpecs = [
-        "Medivale", "HealPoint", "LifeCare", "All Hospitals", 
+        "Medivale", "HealPoint", "LifeCare", "All Hospitals",
     ];
 
     const medicalSpecialityOptions = [
         "Cardiology", "Neurology", "Oncology", "Other", "All Specialities"
     ];
-    
+
     const manufacturerNameOptions = [
         "MediTech", "HealthCorp", "LifeInstruments", "GlobalMed", "All Manufacturers"
     ];
@@ -120,7 +117,7 @@ export default function ResearcherCount() {
 
     // Footer component
     const Footer = () => (
-        <footer className="text-center text-sm text-gray-500 py-4 absolute bottom-0 w-full">
+        <footer className="text-center text-sm text-gray-500 py-2 absolute bottom-0 w-full">
             © {new Date().getFullYear()} Septon. All rights reserved.
         </footer>
     );
@@ -141,23 +138,24 @@ export default function ResearcherCount() {
                         </button>
                     </div>
                 </nav>
-                <div className="justify-center space-x-6 py-4 mt-16">
-                    <button
-                        className="py-2 px-8 bg-teal-600 border border-teal-600 border-2 text-white rounded font-bold"
-                    >Count</button>
-                    <button
-                        className="py-2 px-6 border border-teal-600 border-2 text-teal-600 rounded hover:bg-teal-600 hover:text-white font-bold"
-                        onClick={() => handleCalculationChange('/researcherhistogram')}
-                    >Count All</button>
-                    <button
-                        className="py-2 px-6 border border-teal-600 border-2 text-teal-600 rounded hover:bg-teal-600 hover:text-white font-bold"
-                        onClick={() => handleCalculationChange('/researcheraverage')}
-                    >Average</button>
+                <div className="fixed top-[20px] left-0 w-full flex justify-center z-40">
+                    <div className="justify-center space-x-6 py-4 mt-16">
+                        <button
+                            className="py-2 px-8 bg-teal-600 border border-teal-600 border-2 text-white rounded font-bold"
+                        >Count</button>
+                        <button
+                            className="py-2 px-6 border border-teal-600 border-2 text-teal-600 rounded hover:bg-teal-600 hover:text-white font-bold"
+                            onClick={() => handleCalculationChange('/researcherhistogram')}
+                        >Count All</button>
+                        <button
+                            className="py-2 px-6 border border-teal-600 border-2 text-teal-600 rounded hover:bg-teal-600 hover:text-white font-bold"
+                            onClick={() => handleCalculationChange('/researcheraverage')}
+                        >Average</button>
+                    </div>
                 </div>
-
                 <div
-                    className="bg-white shadow-lg flex w-full max-w-6xl mx-4 my-8 p-8 space-x-8 min-h-full h-300"
-                    style={{ minHeight: '510px' }}
+                    className="bg-white shadow-lg flex w-full max-w-6xl mx-4 my-8 p-8 space-x-8 min-h-full h-300 "
+                    style={{ minHeight: '510px', marginTop: '150px' }}
                 >
                     <div className="flex flex-col items-center justify-center w-1/2 space-y-4">
                         <h1 className="text-teal-600 text-3xl font-bold">
@@ -174,8 +172,8 @@ export default function ResearcherCount() {
                             ))}
                         </select>
 
-                        <select className="w-full p-3 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-teal-600 focus:border-transparent" 
-                            value={specification} 
+                        <select className="w-full p-3 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-teal-600 focus:border-transparent"
+                            value={specification}
                             onChange={e => setSpecification(e.target.value)}
                         >
                             <option value={""}>Select Specification</option>

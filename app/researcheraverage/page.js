@@ -61,7 +61,7 @@ export default function ResearcherAverage() {
 
     // Footer component
     const Footer = () => (
-        <footer className="text-center text-sm text-gray-500 py-4 absolute bottom-0 w-full">
+        <footer className="text-center text-sm text-gray-500 py-2 absolute bottom-0 w-full">
             © {new Date().getFullYear()} Septon. All rights reserved.
         </footer>
     );
@@ -87,23 +87,25 @@ export default function ResearcherAverage() {
                         </button>
                     </div>
                 </nav>
-                <div className="justify-center space-x-6 py-4 mt-16"> {/* Added mt-16 for top margin */}
-                    <button
-                        className="py-2 px-8 border border-teal-600 border-2 text-teal-600 rounded hover:bg-teal-600 hover:text-white font-bold"
-                        onClick={() => handleCalculationChange('/researchercount')}
-                    >Count</button>
-                    <button
-                        className="py-2 px-6 border border-teal-600 border-2 text-teal-600 rounded hover:bg-teal-600 hover:text-white font-bold"
-                        onClick={() => handleCalculationChange('/researcherhistogram')}
-                    >Count All</button>
-                    <button
-                        className="py-2 px-6 bg-teal-600 border border-teal-600 border-2 text-white rounded font-bold"
-                    >Average</button>
+                <div className="fixed top-[20px] left-0 w-full flex justify-center z-40">
+                    <div className="justify-center space-x-6 py-4 mt-16"> {/* Added mt-16 for top margin */}
+                        <button
+                            className="py-2 px-8 border border-teal-600 border-2 text-teal-600 rounded hover:bg-teal-600 hover:text-white font-bold"
+                            onClick={() => handleCalculationChange('/researchercount')}
+                        >Count</button>
+                        <button
+                            className="py-2 px-6 border border-teal-600 border-2 text-teal-600 rounded hover:bg-teal-600 hover:text-white font-bold"
+                            onClick={() => handleCalculationChange('/researcherhistogram')}
+                        >Count All</button>
+                        <button
+                            className="py-2 px-6 bg-teal-600 border border-teal-600 border-2 text-white rounded font-bold"
+                        >Average</button>
+                    </div>
                 </div>
 
                 <div
                     className="bg-white shadow-lg flex w-full max-w-6xl mx-4 my-8 p-8 space-x-8 min-h-full h-300"
-                    style={{ minHeight: '510px' }}
+                    style={{ minHeight: '510px', marginTop: '150px' }}
                 >
                     <div className="flex flex-col items-center justify-center w-1/2 space-y-4">
                         <h1 className="text-teal-600 text-3xl font-bold">
@@ -128,9 +130,9 @@ export default function ResearcherAverage() {
                                 <option key={spec} value={spec}>{spec.replace(/_/g, ' ')}</option> // Replace underscores with spaces for readability
                             ))}
                         </select>
-                        <select 
-                            className="w-full p-3 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-teal-600 focus:border-transparent" 
-                            value={hospital} 
+                        <select
+                            className="w-full p-3 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-teal-600 focus:border-transparent"
+                            value={hospital}
                             onChange={e => setHospital(e.target.value)}
                         >
                             <option value={hospital}>Select Hospital</option>
