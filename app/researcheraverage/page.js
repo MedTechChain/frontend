@@ -111,7 +111,9 @@ export default function ResearcherAverage() {
         };
 
         const token = localStorage.getItem("token");
+
         console.log(payload);
+        console.log(token);
 
         try {
             const response = await fetch(`${API_URL}/api/queries`, { 
@@ -121,16 +123,15 @@ export default function ResearcherAverage() {
                     Authorization: `Bearer ${token}`,
                 },
                 body: JSON.stringify(payload),
-
             });
 
             if (!response.ok) {
                 throw new Error("Failed to execute query");
             }
-
             const data = await response.json();
             console.log(data); 
         } catch (error) {
+            setErrorMessage("An error occurred");
             console.error("Error while executing the query:", error);
         }
         setDeviceType('');
@@ -210,7 +211,7 @@ export default function ResearcherAverage() {
                                 setErrorMessage("")
                             }}
                         >
-                            <option value={hospital}>Select Hospital</option>
+                            <option value="">Select Hospital</option>
                             {hospitalSpecs.map(spec => (
                                 <option key={spec} value={spec}>{spec.replace(/_/g, ' ')}</option> // Replace underscores with spaces for readability
                             ))}

@@ -78,6 +78,71 @@ export default function ResearcherCount() {
         }
     }, [deviceType]);
 
+    async function executeQuery(event) {
+        event.preventDefault();
+        setErrorMessage("");
+
+        if (!deviceType || !specification || !hospital || !startDate || !endDate ||
+            (specification === "medical_speciality" && !medicalSpeciality) ||
+            (specification === "manufacturer_name" && !manufacturerName) ||
+            (specification === "operating_system" && !operatingSystemVersion)) {
+            setErrorMessage("Please fill in all fields");
+            return;
+        }
+
+        let selectedHospitals = hospital === "All Hospitals" ? hospitalSpecs.slice(0, -1) : [hospital]; // Exclude "All Hospitals" from the list if selected
+        selectedHospitals = selectedHospitals.map(hosp => hosp.toUpperCase().replace(/ /g, '')); // Format hospital names
+
+        let filters = [];
+        if (specification === "medical_speciality" && medicalSpeciality !== "All Specialities") {
+            filters.push({ field: "medical_speciality", value: medicalSpeciality });
+        }
+        if (specification === "manufacturer_name" && manufacturerName !== "All Manufacturers") {
+            filters.push({ field: "manufacturer_name", value: manufacturerName });
+        }
+        if (specification === "operating_system" && operatingSystemVersion) {
+            filters.push({ field: "operating_system_version", value: operatingSystemVersion });
+        }
+
+        const payload = {
+            query_type: "COUNT",
+            device_type: deviceType.toUpperCase().replace(/ /g, '_'),
+            hospital_list: {
+                hospitals: selectedHospitals,
+            },
+            start_time: startDate,
+            stop_time: endDate,
+            filter_list: {
+                filters: filters
+            }
+        };
+
+        const token = localStorage.getItem("token");
+
+        try {
+            const response = await fetch(`${API_URL}/api/queries`, { // Make sure to use the correct endpoint
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${token}`,
+                },
+                body: JSON.stringify(payload),
+            });
+
+            if (!response.ok) {
+                throw new Error("Failed to execute query");
+            }
+
+            const data = await response.json();
+            console.log(data); 
+        } catch (error) {
+            console.error("Error while executing the query:", error);
+            setErrorMessage("An error occurred");
+        }
+
+
+    }
+
     // // Demo get version count
     // async function handleGetVersion() {
     //     // Check if the version matches the pattern
@@ -184,7 +249,7 @@ export default function ResearcherCount() {
                                     setErrorMessage("");
                             }}
                         >
-                            <option value={""}>Select Specification</option>
+                            <option value="">Select Specification</option>
                             {availableSpecifications.map(spec => (
                                 <option key={spec} value={spec}>{spec.replace(/_/g, ' ')}</option> // Replace underscores with spaces for readability
                             ))}
@@ -282,7 +347,7 @@ export default function ResearcherCount() {
                         )}
                         <button
                             type="button"
-
+                            onClick={executeQuery}
                             className="w-full py-3 bg-teal-600 text-gray-100 rounded-lg w-[26ch] py-1.5 select-none hover:bg-teal-700 duration-300 mb-2"
                         >
                             Execute Query

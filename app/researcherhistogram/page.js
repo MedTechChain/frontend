@@ -127,11 +127,70 @@ export default function ResearcherHistogram() {
         router.push(path);
     };
 
-    const handleExecuteQuery = async () => {
-        // Your existing code to execute the query and fetch the data...
+    async function handleExecuteQuery(event) {
+        setErrorMessage("");
+    
+        if (!deviceType || !specification || !hospital || !startDate || !endDate) {
+            setErrorMessage("Please fill in all fields");
+            return;
+        }
+    
+        let selectedHospitals = hospital === "All Hospitals" ? hospitalSpecs.slice(0, -1) : [hospital]; // Exclude "All Hospitals" from the list if selected
+        selectedHospitals = selectedHospitals.map(hosp => hosp.toUpperCase().replace(/ /g, '')); // Format hospital names
+    
+        const payload = {
+            query_type: "COUNT_ALL",
+            device_type: deviceType.toUpperCase().replace(' ', '_'),
+            hospital_list: {
+                hospitals: selectedHospitals,
+            },
+            start_time: startDate,
+            stop_time: endDate,
+            filter_list: {
+                filters: null,
+            },
+            field: specification.toUpperCase().replace(' ', '_'),
+        };
+    
+        const token = localStorage.getItem("token");
+    
+        try {
+            const response = await fetch(`${API_URL}/api/queries/histogram`, { 
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${token}`,
+                },
+                body: JSON.stringify(payload),
+            });
+    
+            if (!response.ok) {
+                throw new Error("Failed to execute query");
+            }
+    
+            const data = await response.json();
+    
+            const personalizedLabel = `Histogram for ${deviceType} - ${specification} (${hospital})`;
 
-        setShowHistogram(true); // Show the histogram after executing the query
-    }
+            setHistogramData({
+                labels:  data.map(item => item.label),
+                datasets: [
+                    {
+                        label: personalizedLabel,
+                        data: data.map(item => item.value),
+                        backgroundColor: 'rgba(13, 148, 136, 0.2)',
+                        borderColor: 'rgba(115, 118, 110, 1)',
+                        borderWidth: 1,
+                    },
+                ],
+            });
+    
+            setShowHistogram(true);
+        } catch (error) {
+            console.error("Error while executing the query:", error);
+            setErrorMessage(error.message || "An error occurred");
+        }
+    }; 
 
     const dummyResponseData = [
         { label: 'Version 1.0', value: 10 },
