@@ -15,6 +15,7 @@ export default function ResearcherCount() {
     const [operatingSystemVersion, setOperatingSystemVersion] = useState('');
     const [startDate, setStartDate] = useState('');
     const [endDate, setEndDate] = useState('');
+    const [errorMessage, setErrorMessage] = useState("");
 
     const API_URL =
         process.env.NEXT_PUBLIC_API_URL === undefined
@@ -112,6 +113,7 @@ export default function ResearcherCount() {
 
     // Function to handle redirection to the other calculation pages
     const handleCalculationChange = (path) => {
+        setErrorMessage("");
         router.push(path);
     };
 
@@ -164,7 +166,10 @@ export default function ResearcherCount() {
                         <select
                             className="w-full p-3 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-teal-600 focus:border-transparent"
                             value={deviceType}
-                            onChange={(e) => setDeviceType(e.target.value)}
+                            onChange={(e) => {
+                                setDeviceType(e.target.value),
+                                    setErrorMessage("");
+                            }}
                         >
                             <option value="">Select Device Type</option>
                             {deviceTypes.map(type => (
@@ -174,7 +179,10 @@ export default function ResearcherCount() {
 
                         <select className="w-full p-3 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-teal-600 focus:border-transparent"
                             value={specification}
-                            onChange={e => setSpecification(e.target.value)}
+                            onChange={e => {
+                                setSpecification(e.target.value),
+                                    setErrorMessage("");
+                            }}
                         >
                             <option value={""}>Select Specification</option>
                             {availableSpecifications.map(spec => (
@@ -185,7 +193,10 @@ export default function ResearcherCount() {
                             <select
                                 className="w-full p-3 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-teal-600 focus:border-transparent"
                                 value={medicalSpeciality}
-                                onChange={e => setMedicalSpeciality(e.target.value)}
+                                onChange={(e) => {
+                                    setMedicalSpeciality(e.target.value),
+                                        setErrorMessage("");
+                                }}
                             >
                                 <option value="">Select Medical Speciality</option>
                                 {medicalSpecialityOptions.map(option => (
@@ -198,7 +209,10 @@ export default function ResearcherCount() {
                             <select
                                 className="w-full p-3 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-teal-600 focus:border-transparent"
                                 value={manufacturerName}
-                                onChange={e => setManufacturerName(e.target.value)}
+                                onChange={(e) => {
+                                    setManufacturerName(e.target.value),
+                                        setErrorMessage("");
+                                }}
                             >
                                 <option value="">Select Manufacturer Name</option>
                                 {manufacturerNameOptions.map(option => (
@@ -213,13 +227,19 @@ export default function ResearcherCount() {
                                 placeholder="Operating System Version"
                                 className="w-full p-3 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-teal-600 focus:border-transparent"
                                 value={operatingSystemVersion}
-                                onChange={e => setOperatingSystemVersion(e.target.value)}
+                                onChange={(e) => {
+                                    setOperatingSystemVersion(e.target.value)
+                                    setErrorMessage("");
+                                }}
                             />
                         )}
                         <select
                             className="w-full p-3 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-teal-600 focus:border-transparent"
                             value={hospital}
-                            onChange={(e) => setHospital(e.target.value)}
+                            onChange={(e) => {
+                                setHospital(e.target.value),
+                                    setErrorMessage("");
+                            }}
                         >
                             <option value="">Select Hospital</option>
                             {hospitalSpecs.map(spec => (
@@ -234,7 +254,10 @@ export default function ResearcherCount() {
                                     type="datetime-local"
                                     id="startDateTime"
                                     value={startDate}
-                                    onChange={(e) => setStartDate(e.target.value)}
+                                    onChange={(e) => {
+                                        setStartDate(e.target.value),
+                                            setErrorMessage("");
+                                    }}
                                     className="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-teal-600 focus:border-transparent"
                                 />
                             </div>
@@ -244,13 +267,22 @@ export default function ResearcherCount() {
                                     type="datetime-local"
                                     id="endDateTime"
                                     value={endDate}
-                                    onChange={(e) => setEndDate(e.target.value)}
+                                    onChange={(e) => {
+                                        setEndDate(e.target.value),
+                                            setErrorMessage("");
+                                    }}
                                     className="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-teal-600 focus:border-transparent"
                                 />
                             </div>
                         </div>
+                        {errorMessage && (
+                            <div className="text-red-500">
+                                {errorMessage}
+                            </div>
+                        )}
                         <button
                             type="button"
+
                             className="w-full py-3 bg-teal-600 text-gray-100 rounded-lg w-[26ch] py-1.5 select-none hover:bg-teal-700 duration-300 mb-2"
                         >
                             Execute Query

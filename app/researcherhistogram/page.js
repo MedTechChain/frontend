@@ -30,7 +30,7 @@ export default function ResearcherHistogram() {
     const [availableSpecifications, setAvailableSpecifications] = useState([]);
     const [startDate, setStartDate] = useState('');
     const [endDate, setEndDate] = useState('');
-
+    const [errorMessage, setErrorMessage] = useState("");
 
     const [histogramData, setHistogramData] = useState({
         labels: [],
@@ -114,8 +114,6 @@ export default function ResearcherHistogram() {
         });
     }, [deviceType]);
 
-
-
     // Footer component
     const Footer = () => (
         <footer className="text-center text-sm text-gray-500 py-2 absolute bottom-0 w-full">
@@ -125,6 +123,7 @@ export default function ResearcherHistogram() {
 
     // Function to handle redirection to the other calculation pages
     const handleCalculationChange = (path) => {
+        setErrorMessage(""); 
         router.push(path);
     };
 
@@ -195,7 +194,10 @@ export default function ResearcherHistogram() {
                         <select
                             className="w-full p-3 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-teal-600 focus:border-transparent"
                             value={specification}
-                            onChange={e => setSpecification(e.target.value)}
+                            onChange={(e) => {
+                                setSpecification(e.target.value),
+                                setErrorMessage("");
+                            }}
                         >
                             <option value="">Select Specification</option>
                             {availableSpecifications.map(spec => (
@@ -205,7 +207,10 @@ export default function ResearcherHistogram() {
                         <select
                             className="w-full p-3 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-teal-600 focus:border-transparent"
                             value={hospital}
-                            onChange={(e) => setHospital(e.target.value)}
+                            onChange={(e) => {
+                                setHospital(e.target.value),
+                                setErrorMessage("");
+                            }}
                         >
                             <option value="">Select Hospital</option>
                             {hospitalSpecs.map(spec => (
@@ -220,7 +225,10 @@ export default function ResearcherHistogram() {
                                     type="datetime-local"
                                     id="startDateTime"
                                     value={startDate}
-                                    onChange={(e) => setStartDate(e.target.value)}
+                                    onChange={(e) => {
+                                        setStartDate(e.target.value),
+                                        setErrorMessage("");
+                                    }}
                                     className="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-teal-600 focus:border-transparent"
                                 />
                             </div>
@@ -230,11 +238,19 @@ export default function ResearcherHistogram() {
                                     type="datetime-local"
                                     id="endDateTime"
                                     value={endDate}
-                                    onChange={(e) => setEndDate(e.target.value)}
+                                    onChange={(e) => {
+                                        setEndDate(e.target.value),
+                                        setErrorMessage("");
+                                    }}
                                     className="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-teal-600 focus:border-transparent"
                                 />
                             </div>
                         </div>
+                        {errorMessage && (
+                            <div className="text-red-500 mb-4">
+                                {errorMessage}
+                            </div>
+                        )}
                         <button
                             type="button"
                             onClick={handleExecuteQuery}

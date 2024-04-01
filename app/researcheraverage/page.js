@@ -12,6 +12,7 @@ export default function ResearcherAverage() {
     const [availableSpecifications, setAvailableSpecifications] = useState([]);
     const [startDate, setStartDate] = useState('');
     const [endDate, setEndDate] = useState('');
+    const [errorMessage, setErrorMessage] = useState("");
 
     const API_URL =
         process.env.NEXT_PUBLIC_API_URL === undefined
@@ -40,7 +41,7 @@ export default function ResearcherAverage() {
 
     // Hospital specifications
     const hospitalSpecs = [
-        "Medivale", "HealPoint", "LifeCare"
+        "Medivale", "HealPoint", "LifeCare", "All"
     ];
 
     const operations = ["=", "<", ">", ">=", "<="];
@@ -68,7 +69,75 @@ export default function ResearcherAverage() {
 
     // Function to handle redirection to the other calculation pages
     const handleCalculationChange = (path) => {
+        setErrorMessage("");
         router.push(path);
+    };
+
+    // Function to execute the query
+    async function executeQuery (event) {
+        event.preventDefault();
+        setErrorMessage("");
+
+        if (!deviceType || !specification || !hospital || !startDate || !endDate) {
+            setErrorMessage("Please fill in all fields");
+            return;
+        }
+
+        let selectedHospitals;
+        if (hospital === "All") {
+            selectedHospitals = hospitalSpecs; 
+        } else {
+            selectedHospitals = [hospital];
+        }
+
+        const payload = {
+            query_type: "AVERAGE",
+            device_type: deviceType.toUpperCase().replace(' ', '_'),
+            hospital_list: {
+                hospitals: selectedHospitals.map(hospital => hospital.toUpperCase().replace(' ', '')),
+            },
+            start_time: startDate,
+            stop_time: endDate,
+            filter_list: {
+                filters: null //[
+                //     {
+                //         field: specification.replace(/ /g, '_').toLowerCase(),
+                //         value: null,
+                //     },
+                // ]
+            },
+            field: specification.replace(/ /g, '_').toLowerCase(),
+            value: null,
+        };
+
+        const token = localStorage.getItem("token");
+        console.log(payload);
+
+        try {
+            const response = await fetch(`${API_URL}/api/queries`, { 
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${token}`,
+                },
+                body: JSON.stringify(payload),
+
+            });
+
+            if (!response.ok) {
+                throw new Error("Failed to execute query");
+            }
+
+            const data = await response.json();
+            console.log(data); 
+        } catch (error) {
+            console.error("Error while executing the query:", error);
+        }
+        setDeviceType('');
+        setSpecification('');
+        setHospital('');
+        setStartDate('');
+        setEndDate('');
     };
 
     return (
@@ -114,7 +183,9 @@ export default function ResearcherAverage() {
                         <select
                             className="w-full p-3 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-teal-600 focus:border-transparent"
                             value={deviceType}
-                            onChange={e => setDeviceType(e.target.value)}
+                            onChange={(e) => {setDeviceType(e.target.value),
+                                setErrorMessage("")
+                            }}
                         >
                             <option value="">Select Device Type</option>
                             {deviceTypes.map(type => <option key={type} value={type}>{type}</option>)}
@@ -123,7 +194,9 @@ export default function ResearcherAverage() {
                         <select
                             className="w-full p-3 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-teal-600 focus:border-transparent"
                             value={specification}
-                            onChange={e => setSpecification(e.target.value)}
+                            onChange={(e) => {setSpecification(e.target.value),
+                                setErrorMessage("")
+                            }}
                         >
                             <option value="">Select Specification</option>
                             {availableSpecifications.map(spec => (
@@ -133,7 +206,9 @@ export default function ResearcherAverage() {
                         <select
                             className="w-full p-3 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-teal-600 focus:border-transparent"
                             value={hospital}
-                            onChange={e => setHospital(e.target.value)}
+                            onChange={(e) => {setHospital(e.target.value),
+                                setErrorMessage("")
+                            }}
                         >
                             <option value={hospital}>Select Hospital</option>
                             {hospitalSpecs.map(spec => (
@@ -148,7 +223,9 @@ export default function ResearcherAverage() {
                                     type="datetime-local"
                                     id="startDateTime"
                                     value={startDate}
-                                    onChange={(e) => setStartDate(e.target.value)}
+                                    onChange={(e) => {setStartDate(e.target.value),
+                                        setErrorMessage("")
+                                    }}
                                     className="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-teal-600 focus:border-transparent"
                                 />
                             </div>
@@ -158,13 +235,21 @@ export default function ResearcherAverage() {
                                     type="datetime-local"
                                     id="endDateTime"
                                     value={endDate}
-                                    onChange={(e) => setEndDate(e.target.value)}
+                                    onChange={(e) => {setEndDate(e.target.value),
+                                        setErrorMessage("")
+                                    }}
                                     className="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-teal-600 focus:border-transparent"
                                 />
                             </div>
                         </div>
+                        {errorMessage && (
+                            <div className="text-red-500 mb-4">
+                                {errorMessage}
+                            </div>
+                        )}
                         <button
                             type="button"
+                            onClick={executeQuery}
                             className="w-full py-3 bg-teal-600 text-gray-100 rounded-lg w-[26ch] py-1.5 select-none hover:bg-teal-700 duration-300 mb-2"
                         >
                             Execute Query
