@@ -92,8 +92,8 @@ export default function ResearcherCount() {
             return;
         }
 
-        let selectedHospitals = hospital === "All Hospitals" ? hospitalSpecs.slice(0, -1) : [hospital]; // Exclude "All Hospitals" from the list if selected
-        selectedHospitals = selectedHospitals.map(hosp => hosp.toUpperCase().replace(/ /g, '')); // Format hospital names
+        let selectedHospitals = hospital === "All Hospitals" ? hospitalSpecs.slice(0, -1) : [hospital]; 
+        selectedHospitals = selectedHospitals.map(hosp => hosp.toUpperCase().replace(/ /g, '')); 
 
         let filters = [];
         if (specification === "medical_speciality" && medicalSpeciality !== "All Specialities") {
@@ -145,7 +145,7 @@ export default function ResearcherCount() {
 
             console.log(data);
         } catch (error) {
-            console.error("Error while executing the query:", error);
+            console.error("Error while executing the query:", error/);
             setErrorMessage("An error occurred");
         }
 

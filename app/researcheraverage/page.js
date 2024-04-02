@@ -41,7 +41,7 @@ export default function ResearcherAverage() {
 
     // Hospital specifications
     const hospitalSpecs = [
-        "Medivale", "HealPoint", "LifeCare", "All"
+        "Medivale", "HealPoint", "LifeCare", "All Hospitals"
     ];
 
     const operations = ["=", "<", ">", ">=", "<="];
@@ -83,12 +83,8 @@ export default function ResearcherAverage() {
             return;
         }
 
-        let selectedHospitals;
-        if (hospital === "All") {
-            selectedHospitals = hospitalSpecs; 
-        } else {
-            selectedHospitals = [hospital];
-        }
+        let selectedHospitals = hospital === "All Hospitals" ? hospitalSpecs.slice(0, -1) : [hospital]; 
+        selectedHospitals = selectedHospitals.map(hosp => hosp.toUpperCase().replace(/ /g, '')); 
 
         const payload = {
             query_type: "AVERAGE",
@@ -96,8 +92,8 @@ export default function ResearcherAverage() {
             hospital_list: {
                 hospitals: selectedHospitals.map(hospital => hospital.toUpperCase().replace(' ', '')),
             },
-            start_time:  Date.now(),
-            stop_time:  Date.now(),
+            start_time:  Math.round( Date.now().getTime() / 1000),
+            stop_time:  Math.round( Date.now().getTime() / 1000),
             filter_list: {
                 filters: null
             },
