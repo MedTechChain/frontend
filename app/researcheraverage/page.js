@@ -96,8 +96,8 @@ export default function ResearcherAverage() {
             hospital_list: {
                 hospitals: selectedHospitals.map(hospital => hospital.toUpperCase().replace(' ', '')),
             },
-            //start_time: startDate,
-            //stop_time: endDate,
+            start_time:  Date.now(),
+            stop_time:  Date.now(),
             filter_list: {
                 filters: null
             },
