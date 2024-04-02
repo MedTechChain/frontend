@@ -143,7 +143,7 @@ export default function ResearcherCount() {
                 setVersionCount(data.queryResult);
             }
 
-            console.log(data); 
+            console.log(data);
         } catch (error) {
             console.error("Error while executing the query:", error);
             setErrorMessage("An error occurred");
@@ -371,7 +371,7 @@ export default function ResearcherCount() {
                             <h2 className="text-gray-600 text-xl font-bold">
                                 Total Count: {versionCount}
                             </h2>
-                        
+                        </div>
                     </div>
                 </div>
             </div>
