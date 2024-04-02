@@ -144,8 +144,8 @@ export default function ResearcherHistogram() {
             hospital_list: {
                 hospitals: selectedHospitals,
             },
-            start_time: startDate,
-            stop_time: endDate,
+            //start_time: startDate,
+            //stop_time: endDate,
             filter_list: {
                 filters: null,
             },

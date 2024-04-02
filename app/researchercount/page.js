@@ -16,6 +16,7 @@ export default function ResearcherCount() {
     const [startDate, setStartDate] = useState('');
     const [endDate, setEndDate] = useState('');
     const [errorMessage, setErrorMessage] = useState("");
+    const [versionCount, setVersionCount] = useState(0);
 
     const API_URL =
         process.env.NEXT_PUBLIC_API_URL === undefined
@@ -76,6 +77,7 @@ export default function ResearcherCount() {
             default:
                 setAvailableSpecifications([]);
         }
+        // updsate the state of the version count
     }, [deviceType]);
 
     async function executeQuery(event) {
@@ -110,8 +112,8 @@ export default function ResearcherCount() {
             hospital_list: {
                 hospitals: selectedHospitals,
             },
-            start_time: startDate,
-            stop_time: endDate,
+            //start_time: startDate,
+            //stop_time: endDate,
             filter_list: {
                 filters: filters
             }
@@ -134,6 +136,13 @@ export default function ResearcherCount() {
             }
 
             const data = await response.json();
+
+            if (!data.queryResult) {
+                throw new Error("Query result not found");
+            } else {
+                setVersionCount(data.queryResult);
+            }
+
             console.log(data); 
         } catch (error) {
             console.error("Error while executing the query:", error);
@@ -358,6 +367,11 @@ export default function ResearcherCount() {
                         <h1 className="text-teal-600 text-3xl font-bold">
                             Count Results
                         </h1>
+                        <div className="w-full p-4 border border-gray-300 rounded">
+                            <h2 className="text-gray-600 text-xl font-bold">
+                                Total Count: {versionCount}
+                            </h2>
+                        
                     </div>
                 </div>
             </div>

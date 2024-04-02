@@ -96,15 +96,10 @@ export default function ResearcherAverage() {
             hospital_list: {
                 hospitals: selectedHospitals.map(hospital => hospital.toUpperCase().replace(' ', '')),
             },
-            start_time: startDate,
-            stop_time: endDate,
+            //start_time: startDate,
+            //stop_time: endDate,
             filter_list: {
-                filters: null //[
-                //     {
-                //         field: specification.replace(/ /g, '_').toLowerCase(),
-                //         value: null,
-                //     },
-                // ]
+                filters: null
             },
             field: specification.replace(/ /g, '_').toLowerCase(),
             value: null,
@@ -158,7 +153,7 @@ export default function ResearcherAverage() {
                     </div>
                 </nav>
                 <div className="fixed top-[20px] left-0 w-full flex justify-center z-40">
-                    <div className="justify-center space-x-6 py-4 mt-16"> {/* Added mt-16 for top margin */}
+                    <div className="justify-center space-x-6 py-4 mt-16"> 
                         <button
                             className="py-2 px-8 border border-teal-600 border-2 text-teal-600 rounded hover:bg-teal-600 hover:text-white font-bold"
                             onClick={() => handleCalculationChange('/researchercount')}
