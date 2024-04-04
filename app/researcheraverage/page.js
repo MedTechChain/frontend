@@ -33,10 +33,10 @@ export default function ResearcherAverage() {
 
     // Specifications for each device type
     const portableDeviceSpecs = [
-        "price_aquired", "price_rental", "usage_frequency"
+        "aquired_price", "rental_price", //"usage_frequency"
     ];
     const wearableDeviceSpecs = [
-        "price_aquired", "price_rental", "data_sync_frequency"
+        "aquired_price", "rental_price", //"data_sync_frequency"
     ];
 
     // Hospital specifications
@@ -92,8 +92,8 @@ export default function ResearcherAverage() {
             hospital_list: {
                 hospitals: selectedHospitals.map(hospital => hospital.toUpperCase().replace(' ', '')),
             },
-            start_time:  Math.floor( Date.now().getTime() / 1000),
-            stop_time:  Math.floor( Date.now().getTime() / 1000),
+            start_time:  startDate + ":00Z",
+            stop_time: endDate + ":00Z",
             filter_list: {
                 filters: null
             },

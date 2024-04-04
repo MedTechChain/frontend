@@ -138,24 +138,25 @@ export default function ResearcherHistogram() {
         let selectedHospitals = hospital === "All Hospitals" ? hospitalSpecs.slice(0, -1) : [hospital]; // Exclude "All Hospitals" from the list if selected
         selectedHospitals = selectedHospitals.map(hosp => hosp.toUpperCase().replace(/ /g, '')); // Format hospital names
     
+
         const payload = {
             query_type: "COUNT_ALL",
             device_type: deviceType.toUpperCase().replace(' ', '_'),
             hospital_list: {
                 hospitals: selectedHospitals,
             },
-            //start_time: startDate,
-            //stop_time: endDate,
+            start_time:  startDate + ":00Z",
+            stop_time: endDate + ":00Z",
             filter_list: {
-                filters: null,
+                filters: [],
             },
-            field: specification.toUpperCase().replace(' ', '_'),
+            field: specification.replace(' ', '_'),
         };
     
         const token = localStorage.getItem("token");
     
         try {
-            const response = await fetch(`${API_URL}/api/queries/histogram`, { 
+            const response = await fetch(`${API_URL}/api/queries`, { 
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",

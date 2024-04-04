@@ -112,12 +112,14 @@ export default function ResearcherCount() {
             hospital_list: {
                 hospitals: selectedHospitals,
             },
-            //start_time: startDate,
-            //stop_time: endDate,
+            start_time:  startDate + ":00Z",
+            stop_time: endDate + ":00Z",
             filter_list: {
                 filters: filters
             }
         };
+
+        console.log(payload);
 
         const token = localStorage.getItem("token");
 
@@ -145,7 +147,7 @@ export default function ResearcherCount() {
 
             console.log(data);
         } catch (error) {
-            console.error("Error while executing the query:", error/);
+            console.error("Error while executing the query:", error);
             setErrorMessage("An error occurred");
         }
 
