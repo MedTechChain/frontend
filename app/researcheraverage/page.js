@@ -95,7 +95,7 @@ export default function ResearcherAverage() {
             start_time:  startDate + ":00Z",
             stop_time: endDate + ":00Z",
             filter_list: {
-                filters: null
+                filters: []
             },
             field: specification.replace(/ /g, '_').toLowerCase(),
             value: null,

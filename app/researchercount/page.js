@@ -97,13 +97,13 @@ export default function ResearcherCount() {
 
         let filters = [];
         if (specification === "medical_speciality" && medicalSpeciality !== "All Specialities") {
-            filters.push({ field: "medical_speciality", value: medicalSpeciality });
+            filters.push({ field: "medical_speciality", value: medicalSpeciality.toUpperCase().replace(' ', '_') });
         }
         if (specification === "manufacturer_name" && manufacturerName !== "All Manufacturers") {
-            filters.push({ field: "manufacturer_name", value: manufacturerName });
+            filters.push({ field: "manufacturer_name", value: manufacturerName.toUpperCase().replace(' ', '_') });
         }
         if (specification === "operating_system" && operatingSystemVersion) {
-            filters.push({ field: "operating_system_version", value: operatingSystemVersion });
+            filters.push({ field: "operating_system_version", value: operatingSystemVersion.toUpperCase().replace(' ', '_') });
         }
 
         const payload = {
