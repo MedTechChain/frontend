@@ -141,7 +141,7 @@ export default function ResearcherHistogram() {
 
         const payload = {
             query_type: "COUNT_ALL",
-            device_type: deviceType.toUpperCase().replace(' ', '_'),
+            device_type: deviceType === "Both" ? undefined : deviceType.toUpperCase().replace(' ', '_'),
             hospital_list: {
                 hospitals: selectedHospitals,
             },
@@ -170,15 +170,20 @@ export default function ResearcherHistogram() {
             }
     
             const data = await response.json();
+
+            console.log(data)
+            console.log(data.result)
+            console.log(Object.keys(data.result))
+            console.log(Object.values(data.result))
     
             const personalizedLabel = `Histogram for ${deviceType} - ${specification} (${hospital})`;
 
             setHistogramData({
-                labels:  data.map(item => item.label),
+                labels:  Object.keys(data.result),
                 datasets: [
                     {
                         label: personalizedLabel,
-                        data: data.map(item => item.value),
+                        data: Object.values(data.result),
                         backgroundColor: 'rgba(13, 148, 136, 0.2)',
                         borderColor: 'rgba(115, 118, 110, 1)',
                         borderWidth: 1,

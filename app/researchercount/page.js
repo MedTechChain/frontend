@@ -108,7 +108,7 @@ export default function ResearcherCount() {
 
         const payload = {
             query_type: "COUNT",
-            device_type: deviceType.toUpperCase().replace(/ /g, '_'),
+            device_type: deviceType === "Both" ? undefined : deviceType.toUpperCase().replace(' ', '_'),
             hospital_list: {
                 hospitals: selectedHospitals,
             },

@@ -33,10 +33,10 @@ export default function ResearcherAverage() {
 
     // Specifications for each device type
     const portableDeviceSpecs = [
-        "aquired_price", "rental_price", //"usage_frequency"
+        "aquired_price", // "rental_price", "usage_frequency"
     ];
     const wearableDeviceSpecs = [
-        "aquired_price", "rental_price", //"data_sync_frequency"
+        "aquired_price", // "rental_price", "data_sync_frequency"
     ];
 
     // Hospital specifications
