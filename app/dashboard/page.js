@@ -4,6 +4,8 @@ import { useEffect, useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faTrashCan } from "@fortawesome/free-regular-svg-icons";
 import { faPencil } from "@fortawesome/free-solid-svg-icons";
+import jwt_decode from "jwt-decode";
+
 
 /**
  * ADMIN DASHBOARD: Allows the admin to view, add, edit, and delete researchers
@@ -53,6 +55,12 @@ export default function Dashboard() {
         router.push('/login');
     };
 
+    const isTokenExpired = (token) => {
+        if (!token) return true;
+        const decoded = jwt_decode(token);
+        const currentTime = Date.now() / 1000; // in seconds
+        return decoded.exp < currentTime;
+    };
 
     // Regular expression pattern for email validation
     const regexPattern = "^(?=.{1,64}@)[A-Za-z0-9_-]+(\\.[A-Za-z0-9_-]+)*@" +
@@ -77,6 +85,10 @@ export default function Dashboard() {
 
         // Get token from local storage
         const token = localStorage.getItem("token");
+        if (isTokenExpired(token)) {
+            handleLogout(); // Implement this function to clear the token and redirect
+            return Promise.reject("Token expired");
+        }
 
         // Create a new researcher object
         const researcherDetails = {
@@ -179,7 +191,7 @@ export default function Dashboard() {
         return () => {
             document.removeEventListener("mousedown", handleClickOutside);
         };
-    }, [API_URL, isDropdownOpen]); 
+    }, [API_URL, isDropdownOpen]);
 
     // Delete Confirmation Modal
     function DeleteConfirmationModal({ isOpen, onClose, onConfirm }) {
@@ -203,15 +215,6 @@ export default function Dashboard() {
     const handleDeleteClick = (researcherId) => {
         setSelectedResearcherId(researcherId);
         setIsDeleteModalOpen(true);
-    };
-
-    // Function to handle confirm deletion
-    const handleConfirmDeletion = async () => {
-        if (selectedResearcherId !== null) {
-            await handleRemoveResearcher(selectedResearcherId);
-            setIsDeleteModalOpen(false); // Close the modal after deletion
-            setSelectedResearcherId(null); // Reset the selected ID
-        }
     };
 
     // function to edit a researcher

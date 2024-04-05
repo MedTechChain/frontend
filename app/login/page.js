@@ -94,7 +94,6 @@ export default function Login() {
 
     return (
         <main>
-
             <nav className=" text-white p-3 w-full fixed top-0 left-0 z-50 " style={{ boxShadow: '0 2px 4px rgba(0,0,0,0.1)' }}>
                 <div className="container mx-auto flex justify-between items-center">
                     <a href="https://septon-project.eu/" target="_blank" rel="noopener noreferrer">
@@ -103,7 +102,6 @@ export default function Login() {
                     <button
                         onClick={handleChangePasswordClick}
                         className="text-teal-600 text-lg hover:bg-teal-700 hover:text-white duration-300 font-bold py-2 px-4 rounded"
-
                     >
                         Change Password
                     </button>

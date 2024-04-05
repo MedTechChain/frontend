@@ -1,8 +1,9 @@
 "use client";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import jwt_decode from "jwt-decode";
 
-
+// Count researcher page
 export default function ResearcherCount() {
     const router = useRouter();
 
@@ -32,6 +33,14 @@ export default function ResearcherCount() {
         router.push('/login');
     };
 
+    // Function to check if the token is expired
+    const isTokenExpired = (token) => {
+        if (!token) return true;
+        const decoded = jwt_decode(token);
+        const currentTime = Date.now() / 1000; // in seconds
+        return decoded.exp < currentTime;
+    };
+
     // Device types
     const deviceTypes = ["Wearable Device", "Portable Device", "Both"];
 
@@ -39,11 +48,9 @@ export default function ResearcherCount() {
     const portableDeviceSpecs = [
         "medical_speciality", "manufacturer_name", "operating_system"
     ];
-
     const wearableDeviceSpecs = [
         "medical_speciality", "manufacturer_name", "operating_system"
     ];
-
     const commonSpecs = [
         "medical_speciality", "manufacturer_name", "operating_system"
     ];
@@ -53,14 +60,13 @@ export default function ResearcherCount() {
         "Medivale", "HealPoint", "LifeCare", "All Hospitals",
     ];
 
+    // Medical speciality and manufacturer name options
     const medicalSpecialityOptions = [
         "Cardiology", "Neurology", "Oncology", "Other", "All Specialities"
     ];
-
     const manufacturerNameOptions = [
         "MediTech", "HealthCorp", "LifeInstruments", "GlobalMed", "All Manufacturers"
     ];
-
 
     // Set available specifications based on the selected device type
     useEffect(() => {
@@ -80,10 +86,12 @@ export default function ResearcherCount() {
         // updsate the state of the version count
     }, [deviceType]);
 
+    // Function to execute the query
     async function executeQuery(event) {
         event.preventDefault();
         setErrorMessage("");
 
+        // Check for empty fields
         if (!deviceType || !specification || !hospital || !startDate || !endDate ||
             (specification === "medical_speciality" && !medicalSpeciality) ||
             (specification === "manufacturer_name" && !manufacturerName) ||
@@ -92,9 +100,10 @@ export default function ResearcherCount() {
             return;
         }
 
-        let selectedHospitals = hospital === "All Hospitals" ? hospitalSpecs.slice(0, -1) : [hospital]; 
-        selectedHospitals = selectedHospitals.map(hosp => hosp.toUpperCase().replace(/ /g, '')); 
+        let selectedHospitals = hospital === "All Hospitals" ? hospitalSpecs.slice(0, -1) : [hospital];
+        selectedHospitals = selectedHospitals.map(hosp => hosp.toUpperCase().replace(/ /g, ''));
 
+        // Prepare filters based on the selected specification
         let filters = [];
         if (specification === "medical_speciality" && medicalSpeciality !== "All Specialities") {
             filters.push({ field: "medical_speciality", value: medicalSpeciality.toUpperCase().replace(' ', '_') });
@@ -106,23 +115,29 @@ export default function ResearcherCount() {
             filters.push({ field: "operating_system_version", value: operatingSystemVersion.toUpperCase().replace(' ', '_') });
         }
 
+        // Prepare the payload for the query
         const payload = {
             query_type: "COUNT",
             device_type: deviceType === "Both" ? undefined : deviceType.toUpperCase().replace(' ', '_'),
             hospital_list: {
                 hospitals: selectedHospitals,
             },
-            start_time:  startDate + ":00Z",
+            start_time: startDate + ":00Z",
             stop_time: endDate + ":00Z",
             filter_list: {
                 filters: filters
             }
         };
 
-        console.log(payload);
-
         const token = localStorage.getItem("token");
 
+        // Check if the token is expired
+        if (isTokenExpired(token)) {
+            handleLogout();
+            return Promise.reject("Token expired");
+        }
+
+        // Execute the query
         try {
             const response = await fetch(`${API_URL}/api/queries`, { // Make sure to use the correct endpoint
                 method: "POST",
@@ -138,7 +153,6 @@ export default function ResearcherCount() {
             }
 
             const data = await response.json();
-
             if (!data.queryResult) {
                 throw new Error("Query result not found");
             } else {
@@ -150,42 +164,7 @@ export default function ResearcherCount() {
             console.error("Error while executing the query:", error);
             setErrorMessage("An error occurred");
         }
-
-
     }
-
-    // // Demo get version count
-    // async function handleGetVersion() {
-    //     // Check if the version matches the pattern
-    //     const versionPattern = /^v\d+\.\d+\.\d+$/;
-    //     if (!versionPattern.test(version)) {
-    //         alert("Version format should be v{number}.{number}.{number}");
-    //         return;
-    //     }
-
-    //     console.log(version)
-    //     const token = localStorage.getItem("token");
-    //     try {
-    //         const response = await fetch(
-    //             `${API_URL}/api/queries?version=${version}`,
-    //             {
-    //                 method: "GET",
-    //                 headers: {
-    //                     Authorization: `Bearer ${token}`,
-    //                 },
-    //             }
-    //         );
-
-    //         if (!response.ok) {
-    //             throw new Error("Failed to get version");
-    //         }
-
-    //         const data = await response.json();
-    //         setVersionCount(data.count);
-    //     } catch (error) {
-    //         console.error("Error while getting the version:", error);
-    //     }
-    // }
 
     // Function to handle redirection to the other calculation pages
     const handleCalculationChange = (path) => {
@@ -219,16 +198,16 @@ export default function ResearcherCount() {
                 <div className="fixed top-[20px] left-0 w-full flex justify-center z-40">
                     <div className="justify-center space-x-6 py-4 mt-16">
                         <button
+                            className="py-2 px-6 border border-teal-600 border-2 text-teal-600 rounded hover:bg-teal-600 hover:text-white font-bold"
+                            onClick={() => handleCalculationChange('/researcheraverage')}
+                        >Average</button>
+                        <button
                             className="py-2 px-8 bg-teal-600 border border-teal-600 border-2 text-white rounded font-bold"
                         >Count</button>
                         <button
                             className="py-2 px-6 border border-teal-600 border-2 text-teal-600 rounded hover:bg-teal-600 hover:text-white font-bold"
                             onClick={() => handleCalculationChange('/researcherhistogram')}
                         >Count All</button>
-                        <button
-                            className="py-2 px-6 border border-teal-600 border-2 text-teal-600 rounded hover:bg-teal-600 hover:text-white font-bold"
-                            onClick={() => handleCalculationChange('/researcheraverage')}
-                        >Average</button>
                     </div>
                 </div>
                 <div

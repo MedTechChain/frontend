@@ -1,8 +1,9 @@
 "use client";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import jwt_decode from "jwt-decode";
 
-
+// Average calculation researcher page
 export default function ResearcherAverage() {
     const router = useRouter();
 
@@ -13,6 +14,7 @@ export default function ResearcherAverage() {
     const [startDate, setStartDate] = useState('');
     const [endDate, setEndDate] = useState('');
     const [errorMessage, setErrorMessage] = useState("");
+    const [averageReult, setAverageResult] = useState(0);
 
     const API_URL =
         process.env.NEXT_PUBLIC_API_URL === undefined
@@ -26,6 +28,14 @@ export default function ResearcherAverage() {
 
         // Redirect to login page or any other page you consider as the logout landing page
         router.push('/login');
+    };
+
+    // Function to check if the token is expired
+    const isTokenExpired = (token) => {
+        if (!token) return true;
+        const decoded = jwt_decode(token);
+        const currentTime = Date.now() / 1000; // in seconds
+        return decoded.exp < currentTime;
     };
 
     // Device types
@@ -43,8 +53,6 @@ export default function ResearcherAverage() {
     const hospitalSpecs = [
         "Medivale", "HealPoint", "LifeCare", "All Hospitals"
     ];
-
-    const operations = ["=", "<", ">", ">=", "<="];
 
     // Set available specifications based on the selected device type
     useEffect(() => {
@@ -74,25 +82,27 @@ export default function ResearcherAverage() {
     };
 
     // Function to execute the query
-    async function executeQuery (event) {
+    async function executeQuery(event) {
         event.preventDefault();
         setErrorMessage("");
 
+        // Check for empty fields
         if (!deviceType || !specification || !hospital || !startDate || !endDate) {
             setErrorMessage("Please fill in all fields");
             return;
         }
 
-        let selectedHospitals = hospital === "All Hospitals" ? hospitalSpecs.slice(0, -1) : [hospital]; 
-        selectedHospitals = selectedHospitals.map(hosp => hosp.toUpperCase().replace(/ /g, '')); 
+        let selectedHospitals = hospital === "All Hospitals" ? hospitalSpecs.slice(0, -1) : [hospital];
+        selectedHospitals = selectedHospitals.map(hosp => hosp.toUpperCase().replace(/ /g, ''));
 
+        // Query payload
         const payload = {
             query_type: "AVERAGE",
             device_type: deviceType.toUpperCase().replace(' ', '_'),
             hospital_list: {
                 hospitals: selectedHospitals.map(hospital => hospital.toUpperCase().replace(' ', '')),
             },
-            start_time:  startDate + ":00Z",
+            start_time: startDate + ":00Z",
             stop_time: endDate + ":00Z",
             filter_list: {
                 filters: []
@@ -102,12 +112,14 @@ export default function ResearcherAverage() {
         };
 
         const token = localStorage.getItem("token");
+        if (isTokenExpired(token)) {
+            handleLogout(); 
+            return Promise.reject("Token expired");
+        }
 
-        console.log(payload);
-        console.log(token);
-
+        // Execute the query
         try {
-            const response = await fetch(`${API_URL}/api/queries`, { 
+            const response = await fetch(`${API_URL}/api/queries`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
@@ -120,11 +132,18 @@ export default function ResearcherAverage() {
                 throw new Error("Failed to execute query");
             }
             const data = await response.json();
-            console.log(data); 
+            if (!data.queryResult) {
+                throw new Error("Query result not found");
+            } else {
+                setAverageResult(data.queryResult);
+            }
+            console.log(data);
         } catch (error) {
             setErrorMessage("An error occurred");
             console.error("Error while executing the query:", error);
         }
+
+        // Clear the form fields
         setDeviceType('');
         setSpecification('');
         setHospital('');
@@ -149,7 +168,10 @@ export default function ResearcherAverage() {
                     </div>
                 </nav>
                 <div className="fixed top-[20px] left-0 w-full flex justify-center z-40">
-                    <div className="justify-center space-x-6 py-4 mt-16"> 
+                    <div className="justify-center space-x-6 py-4 mt-16">
+                        <button
+                            className="py-2 px-6 bg-teal-600 border border-teal-600 border-2 text-white rounded font-bold"
+                        >Average</button>
                         <button
                             className="py-2 px-8 border border-teal-600 border-2 text-teal-600 rounded hover:bg-teal-600 hover:text-white font-bold"
                             onClick={() => handleCalculationChange('/researchercount')}
@@ -158,9 +180,6 @@ export default function ResearcherAverage() {
                             className="py-2 px-6 border border-teal-600 border-2 text-teal-600 rounded hover:bg-teal-600 hover:text-white font-bold"
                             onClick={() => handleCalculationChange('/researcherhistogram')}
                         >Count All</button>
-                        <button
-                            className="py-2 px-6 bg-teal-600 border border-teal-600 border-2 text-white rounded font-bold"
-                        >Average</button>
                     </div>
                 </div>
 
@@ -175,8 +194,9 @@ export default function ResearcherAverage() {
                         <select
                             className="w-full p-3 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-teal-600 focus:border-transparent"
                             value={deviceType}
-                            onChange={(e) => {setDeviceType(e.target.value),
-                                setErrorMessage("")
+                            onChange={(e) => {
+                                setDeviceType(e.target.value),
+                                    setErrorMessage("")
                             }}
                         >
                             <option value="">Select Device Type</option>
@@ -186,8 +206,9 @@ export default function ResearcherAverage() {
                         <select
                             className="w-full p-3 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-teal-600 focus:border-transparent"
                             value={specification}
-                            onChange={(e) => {setSpecification(e.target.value),
-                                setErrorMessage("")
+                            onChange={(e) => {
+                                setSpecification(e.target.value),
+                                    setErrorMessage("")
                             }}
                         >
                             <option value="">Select Specification</option>
@@ -198,8 +219,9 @@ export default function ResearcherAverage() {
                         <select
                             className="w-full p-3 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-teal-600 focus:border-transparent"
                             value={hospital}
-                            onChange={(e) => {setHospital(e.target.value),
-                                setErrorMessage("")
+                            onChange={(e) => {
+                                setHospital(e.target.value),
+                                    setErrorMessage("")
                             }}
                         >
                             <option value="">Select Hospital</option>
@@ -215,8 +237,9 @@ export default function ResearcherAverage() {
                                     type="datetime-local"
                                     id="startDateTime"
                                     value={startDate}
-                                    onChange={(e) => {setStartDate(e.target.value),
-                                        setErrorMessage("")
+                                    onChange={(e) => {
+                                        setStartDate(e.target.value),
+                                            setErrorMessage("")
                                     }}
                                     className="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-teal-600 focus:border-transparent"
                                 />
@@ -227,8 +250,9 @@ export default function ResearcherAverage() {
                                     type="datetime-local"
                                     id="endDateTime"
                                     value={endDate}
-                                    onChange={(e) => {setEndDate(e.target.value),
-                                        setErrorMessage("")
+                                    onChange={(e) => {
+                                        setEndDate(e.target.value),
+                                            setErrorMessage("")
                                     }}
                                     className="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-teal-600 focus:border-transparent"
                                 />
@@ -252,6 +276,11 @@ export default function ResearcherAverage() {
                         <h1 className="text-teal-600 text-3xl font-bold">
                             Average Results
                         </h1>
+                        <div className="w-full p-4 border border-gray-300 rounded">
+                            <h2 className="text-gray-600 text-xl font-bold">
+                                Total Average: {averageReult}
+                            </h2>
+                        </div>
                     </div>
                 </div>
             </div>

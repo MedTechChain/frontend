@@ -45,6 +45,7 @@ export default function ChangePassword() {
             setErrorMessage("Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character.");
             return;
         }
+
         try {
             const response = await fetch(`${API_URL}/api/users/change_password`, {
                 method: "PUT",
@@ -62,6 +63,7 @@ export default function ChangePassword() {
                 throw new Error("Failed to change password. Please try again.");
             }
 
+            // Reset form fields
             setUsername("");
             setCurrentPassword("");
             setNewPassword("");

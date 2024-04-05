@@ -2,6 +2,7 @@
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { Bar } from 'react-chartjs-2';
+import jwt_decode from "jwt-decode";
 import {
     Chart as ChartJS,
     CategoryScale,
@@ -21,6 +22,7 @@ ChartJS.register(
     Legend
 );
 
+// Count All researcher page
 export default function ResearcherHistogram() {
     const router = useRouter();
 
@@ -32,6 +34,7 @@ export default function ResearcherHistogram() {
     const [endDate, setEndDate] = useState('');
     const [errorMessage, setErrorMessage] = useState("");
 
+    // State to store histogram data
     const [histogramData, setHistogramData] = useState({
         labels: [],
         datasets: [
@@ -60,6 +63,13 @@ export default function ResearcherHistogram() {
         router.push('/login');
     };
 
+    const isTokenExpired = (token) => {
+        if (!token) return true;
+        const decoded = jwt_decode(token);
+        const currentTime = Date.now() / 1000; // in seconds
+        return decoded.exp < currentTime;
+    };
+
     // Device types
     const deviceTypes = ["Wearable Device", "Portable Device", "Both"];
 
@@ -67,11 +77,9 @@ export default function ResearcherHistogram() {
     const portableDeviceSpecs = [
         "medical_speciality", "manufacturer_name", "operating_system"
     ];
-
     const wearableDeviceSpecs = [
         "medical_speciality", "manufacturer_name", "operating_system"
     ];
-
     const commonSpecs = [
         "medical_speciality", "manufacturer_name", "operating_system"
     ];
@@ -96,18 +104,17 @@ export default function ResearcherHistogram() {
             default:
                 setAvailableSpecifications([]);
         }
-        // Simulating setting data from an API response using dummy data
-        const labels = dummyResponseData.map(item => item.label);
-        const data = dummyResponseData.map(item => item.value);
 
+        // Reset histogram data
+        setShowHistogram(false); 
         setHistogramData({
-            labels,
+            labels: [],
             datasets: [
                 {
-                    label: 'Version Count',
-                    data,
-                    backgroundColor: 'rgba(13, 148, 136, 0.3)',
-                    borderColor: 'rgba(15, 118, 110, 1)',
+                    label: 'Dataset Label',
+                    data: [],
+                    backgroundColor: 'rgba(13, 148, 136, 0.2)',
+                    borderColor: 'rgba(115, 118, 110, 1)',
                     borderWidth: 1,
                 },
             ],
@@ -123,40 +130,48 @@ export default function ResearcherHistogram() {
 
     // Function to handle redirection to the other calculation pages
     const handleCalculationChange = (path) => {
-        setErrorMessage(""); 
+        setErrorMessage("");
         router.push(path);
     };
 
     async function handleExecuteQuery(event) {
         setErrorMessage("");
-    
+
+        // Check for empty fields
         if (!deviceType || !specification || !hospital || !startDate || !endDate) {
             setErrorMessage("Please fill in all fields");
             return;
         }
-    
-        let selectedHospitals = hospital === "All Hospitals" ? hospitalSpecs.slice(0, -1) : [hospital]; // Exclude "All Hospitals" from the list if selected
-        selectedHospitals = selectedHospitals.map(hosp => hosp.toUpperCase().replace(/ /g, '')); // Format hospital names
-    
 
+        let selectedHospitals = hospital === "All Hospitals" ? hospitalSpecs.slice(0, -1) : [hospital]; 
+        selectedHospitals = selectedHospitals.map(hosp => hosp.toUpperCase().replace(/ /g, '')); // Format hospital names
+
+        // Payload for the query
         const payload = {
             query_type: "COUNT_ALL",
             device_type: deviceType === "Both" ? undefined : deviceType.toUpperCase().replace(' ', '_'),
             hospital_list: {
                 hospitals: selectedHospitals,
             },
-            start_time:  startDate + ":00Z",
+            start_time: startDate + ":00Z",
             stop_time: endDate + ":00Z",
             filter_list: {
                 filters: [],
             },
             field: specification.replace(' ', '_'),
         };
-    
+
         const token = localStorage.getItem("token");
-    
+
+        // Check if the token is expired
+        if (isTokenExpired(token)) {
+            handleLogout(); 
+            return Promise.reject("Token expired");
+        }
+
+        // Execute the query
         try {
-            const response = await fetch(`${API_URL}/api/queries`, { 
+            const response = await fetch(`${API_URL}/api/queries`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
@@ -164,22 +179,17 @@ export default function ResearcherHistogram() {
                 },
                 body: JSON.stringify(payload),
             });
-    
+
             if (!response.ok) {
                 throw new Error("Failed to execute query");
             }
-    
-            const data = await response.json();
 
-            console.log(data)
-            console.log(data.result)
-            console.log(Object.keys(data.result))
-            console.log(Object.values(data.result))
-    
+            const data = await response.json();
             const personalizedLabel = `Histogram for ${deviceType} - ${specification} (${hospital})`;
 
+            // Update the histogram data
             setHistogramData({
-                labels:  Object.keys(data.result),
+                labels: Object.keys(data.result),
                 datasets: [
                     {
                         label: personalizedLabel,
@@ -190,21 +200,20 @@ export default function ResearcherHistogram() {
                     },
                 ],
             });
-    
+
             setShowHistogram(true);
         } catch (error) {
             console.error("Error while executing the query:", error);
             setErrorMessage(error.message || "An error occurred");
         }
-    }; 
 
-    const dummyResponseData = [
-        { label: 'Version 1.0', value: 10 },
-        { label: 'Version 1.1', value: 15 },
-        { label: 'Version 1.2', value: 20 },
-        { label: 'Version 2.0', value: 25 },
-        { label: 'Version 2.1', value: 30 },
-    ];
+        // Reset the form fields
+        setDeviceType("");
+        setSpecification("");
+        setHospital("");
+        setStartDate("");
+        setEndDate("");
+    };
 
     return (
         <main>
@@ -225,16 +234,16 @@ export default function ResearcherHistogram() {
                 <div className="fixed top-[20px] left-0 w-full flex justify-center z-40">
                     <div className="justify-center space-x-6 py-4 mt-16">
                         <button
+                            className="py-2 px-6 border border-teal-600 border-2 text-teal-600 rounded hover:bg-teal-600 hover:text-white font-bold"
+                            onClick={() => handleCalculationChange('/researcheraverage')}
+                        >Average</button>
+                        <button
                             className="py-2 px-8 border border-teal-600 border-2 text-teal-600 rounded hover:bg-teal-600 hover:text-white font-bold"
                             onClick={() => handleCalculationChange('/researchercount')}
                         >Count</button>
                         <button
                             className="py-2 px-6 bg-teal-600 border border-teal-600 border-2 text-white rounded font-bold"
                         >Count All</button>
-                        <button
-                            className="py-2 px-6 border border-teal-600 border-2 text-teal-600 rounded hover:bg-teal-600 hover:text-white font-bold"
-                            onClick={() => handleCalculationChange('/researcheraverage')}
-                        >Average</button>
                     </div>
                 </div>
 
@@ -261,7 +270,7 @@ export default function ResearcherHistogram() {
                             value={specification}
                             onChange={(e) => {
                                 setSpecification(e.target.value),
-                                setErrorMessage("");
+                                    setErrorMessage("");
                             }}
                         >
                             <option value="">Select Specification</option>
@@ -274,7 +283,7 @@ export default function ResearcherHistogram() {
                             value={hospital}
                             onChange={(e) => {
                                 setHospital(e.target.value),
-                                setErrorMessage("");
+                                    setErrorMessage("");
                             }}
                         >
                             <option value="">Select Hospital</option>
@@ -292,7 +301,7 @@ export default function ResearcherHistogram() {
                                     value={startDate}
                                     onChange={(e) => {
                                         setStartDate(e.target.value),
-                                        setErrorMessage("");
+                                            setErrorMessage("");
                                     }}
                                     className="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-teal-600 focus:border-transparent"
                                 />
@@ -305,7 +314,7 @@ export default function ResearcherHistogram() {
                                     value={endDate}
                                     onChange={(e) => {
                                         setEndDate(e.target.value),
-                                        setErrorMessage("");
+                                            setErrorMessage("");
                                     }}
                                     className="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-teal-600 focus:border-transparent"
                                 />
