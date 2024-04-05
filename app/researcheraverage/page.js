@@ -1,7 +1,7 @@
 "use client";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import jwt_decode from "jwt-decode";
+import { jwtDecode } from "jwt-decode";
 
 // Average calculation researcher page
 export default function ResearcherAverage() {
@@ -33,7 +33,7 @@ export default function ResearcherAverage() {
     // Function to check if the token is expired
     const isTokenExpired = (token) => {
         if (!token) return true;
-        const decoded = jwt_decode(token);
+        const decoded = jwtDecode(token);
         const currentTime = Date.now() / 1000; // in seconds
         return decoded.exp < currentTime;
     };

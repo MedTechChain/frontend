@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faTrashCan } from "@fortawesome/free-regular-svg-icons";
 import { faPencil } from "@fortawesome/free-solid-svg-icons";
-import jwt_decode from "jwt-decode";
+import { jwtDecode } from "jwt-decode";
 
 
 /**
@@ -57,7 +57,7 @@ export default function Dashboard() {
 
     const isTokenExpired = (token) => {
         if (!token) return true;
-        const decoded = jwt_decode(token);
+        const decoded = jwtDecode(token);
         const currentTime = Date.now() / 1000; // in seconds
         return decoded.exp < currentTime;
     };
