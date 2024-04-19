@@ -158,10 +158,10 @@ export default function ResearcherCount() {
             }
 
             const data = await response.json();
-            if (!data.queryResult) {
+            if (!data.result) {
                 throw new Error("Query result not found");
             } else {
-                setVersionCount(data.queryResult);
+                setVersionCount(data.result);
             }
 
             console.log(data);

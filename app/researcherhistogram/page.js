@@ -75,13 +75,13 @@ export default function ResearcherHistogram() {
 
     // Specifications for each device type
     const portableDeviceSpecs = [
-        "medical_speciality", "manufacturer_name", "operating_system"
+        "medical_speciality", "manufacturer_name", // "operating_system"
     ];
     const wearableDeviceSpecs = [
-        "medical_speciality", "manufacturer_name", "operating_system"
+        "medical_speciality", "manufacturer_name", // "operating_system"
     ];
     const commonSpecs = [
-        "medical_speciality", "manufacturer_name", "operating_system"
+        "medical_speciality", "manufacturer_name", // "operating_system"
     ];
 
     // Hospital specifications
@@ -206,13 +206,6 @@ export default function ResearcherHistogram() {
             console.error("Error while executing the query:", error);
             setErrorMessage(error.message || "An error occurred");
         }
-
-        // Reset the form fields
-        setDeviceType("");
-        setSpecification("");
-        setHospital("");
-        setStartDate("");
-        setEndDate("");
     };
 
     return (

@@ -132,23 +132,16 @@ export default function ResearcherAverage() {
                 throw new Error("Failed to execute query");
             }
             const data = await response.json();
-            if (!data.queryResult) {
+            if (!data.result) {
                 throw new Error("Query result not found");
             } else {
-                setAverageResult(data.queryResult);
+                setAverageResult(data.result);
             }
             console.log(data);
         } catch (error) {
             setErrorMessage("An error occurred");
             console.error("Error while executing the query:", error);
         }
-
-        // Clear the form fields
-        setDeviceType('');
-        setSpecification('');
-        setHospital('');
-        setStartDate('');
-        setEndDate('');
     };
 
     return (
