@@ -112,6 +112,11 @@ export default function ResearcherCount() {
             filters.push({ field: "manufacturer_name", value: manufacturerName.toUpperCase().replace(' ', '_') });
         }
         if (specification === "operating_system" && operatingSystemVersion) {
+            const versionPattern = /^v\d+\.\d+\.\d+$/;
+        if (!versionPattern.test(operatingSystemVersion)) {
+            setErrorMessage("Version format should be v{number}.{number}.{number}");
+            return;
+        }
             filters.push({ field: "operating_system_version", value: operatingSystemVersion.toUpperCase().replace(' ', '_') });
         }
 
@@ -279,7 +284,7 @@ export default function ResearcherCount() {
                         {specification === "operating_system" && (
                             <input
                                 type="text"
-                                placeholder="Operating System Version"
+                                placeholder="Operating System Version (e.g v0.0.1)"
                                 className="w-full p-3 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-teal-600 focus:border-transparent"
                                 value={operatingSystemVersion}
                                 onChange={(e) => {

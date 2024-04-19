@@ -3,7 +3,6 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { jwtDecode } from "jwt-decode";
 
-
 /**
  * Login page: Allows Admin and Researcher to login to the respective dashboards
  */
