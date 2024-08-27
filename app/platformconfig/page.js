@@ -4,9 +4,6 @@ import { useEffect, useState } from "react";
 import { jwtDecode } from "jwt-decode";
 
 
-/**
- * ADMIN DASHBOARD: Allows the admin to view, add, edit, and delete researchers
- */
 export default function Dashboard() {
     const router = useRouter();
 
