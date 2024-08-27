@@ -55,6 +55,11 @@ export default function Dashboard() {
         router.push('/login');
     };
 
+    // Function to handle logout
+    const handleConfigurePlatform = () => {
+        router.push('/platformconfig');
+    };
+
     const isTokenExpired = (token) => {
         if (!token) return true;
         const decoded = jwtDecode(token);
@@ -147,6 +152,35 @@ export default function Dashboard() {
             fetchResearchers();
         } catch (error) {
             console.error("Error during user deletion:", error);
+        }
+    }
+
+    async function handleDownloadQueryHistory() {
+        const token = localStorage.getItem("token");
+        try {
+            // const response = await fetch(`${API_URL}/api/queries`, {
+            //     method: "GET",
+            //     headers: {
+            //         "Content-Type": "application/json",
+            //         Authorization: `Bearer ${token}`,
+            //     },
+            // });
+
+            // if (!response.ok) {
+            //     throw new Error("Failed to fetch queries");
+            // }
+
+            const json = await response.json();
+            const blob = new Blob([json], { type: 'application/json' }); // Create a blob from the JSON string
+            const url = URL.createObjectURL(blob); // Create a URL for the blob
+            const link = document.createElement('a'); // Create an anchor element
+            link.href = url;
+            link.download = `export.json`; // Set the file name for the download
+            document.body.appendChild(link);
+            link.click(); // Programmatically click the anchor to trigger the download
+            document.body.removeChild(link);
+        } catch (error) {
+            console.error("Error fetching researchers:", error);
         }
     }
 
@@ -347,37 +381,23 @@ export default function Dashboard() {
 
                     {/* Right Section - Encryption Option and Logout Button */}
                     <div className="flex items-center">
-                        {/* Encryption Dropdown */}
+
+                    <div className="relative inline-block text-left mr-5"> {/* Added margin-right for spacing */}
+                            <button
+                                onClick={handleDownloadQueryHistory}
+                                className="px-8 text-teal-600 border border-teal-600 border-2 hover:text-white hover:bg-teal-600 duration-300 font-bold py-2 px-4 rounded"
+                            >
+                                Download query history
+                            </button>
+                        </div>
+
                         <div className="relative inline-block text-left mr-5"> {/* Added margin-right for spacing */}
                             <button
-                                type="button"
-                                className="inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-3 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50"
-                                id="menu-button"
-                                aria-expanded={isDropdownOpen}
-                                aria-haspopup="true"
-                                onClick={toggleDropdown}
+                                onClick={handleConfigurePlatform}
+                                className="px-8 text-teal-600 border border-teal-600 border-2 hover:text-white hover:bg-teal-600 duration-300 font-bold py-2 px-4 rounded"
                             >
-                                Encryption: {encryptionScheme}
-                                <svg className="-mr-1 ml-2 h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-                                    <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
-                                </svg>
+                                Configure Platform
                             </button>
-
-                            {isDropdownOpen && (
-                                <div
-                                    className="dropdown-container origin-top-right absolute right-0 mt-2 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 focus:outline-none"
-                                    role="menu"
-                                    aria-orientation="vertical"
-                                    aria-labelledby="menu-button"
-                                    tabIndex="-1"
-                                >
-                                    <div className="py-1" role="none">
-                                        <a href="#" className={`text-gray-700 block px-4 py-2 text-sm hover:bg-gray-200 ${encryptionScheme === "PHE" ? "text-teal-700" : ""}`} role="menuitem" tabIndex="-1" id="menu-item-0" onClick={() => setEncryptionScheme("PHE")}>PHE</a>
-                                        <a href="#" className={`text-gray-700 block px-4 py-2 text-sm hover:bg-gray-200 ${encryptionScheme === "RSA" ? "text-teal-700" : ""}`} role="menuitem" tabIndex="-1" id="menu-item-1" onClick={() => setEncryptionScheme("RSA")}>RSA</a>
-                                        <a href="#" className={`text-gray-700 block px-4 py-2 text-sm hover:bg-gray-200 ${encryptionScheme === "FHE" ? "text-teal-700" : ""}`} role="menuitem" tabIndex="-1" id="menu-item-2" onClick={() => setEncryptionScheme("FHE")}>FHE</a>
-                                    </div>
-                                </div>
-                            )}
                         </div>
 
                         {/* Logout Button */}
