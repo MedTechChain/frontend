@@ -1,7 +1,8 @@
 "use client";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { jwtDecode } from "jwt-decode";
+import { Footer, API_URL, handleLogout, isTokenExpired } from './../utils';
+import { deviceCategories, allSpecifications, renderInputField } from '../specifications';
 
 // Average calculation researcher page
 export default function ResearcherAverage() {
@@ -9,73 +10,23 @@ export default function ResearcherAverage() {
 
     const [deviceType, setDeviceType] = useState('');
     const [specification, setSpecification] = useState('');
-    const [hospital, setHospital] = useState('');
     const [availableSpecifications, setAvailableSpecifications] = useState([]);
+    const [inputValue, setInputValue] = useState(''); // State for input field value
     const [startDate, setStartDate] = useState('');
     const [endDate, setEndDate] = useState('');
     const [errorMessage, setErrorMessage] = useState("");
-    const [averageReult, setAverageResult] = useState(0);
-
-    const API_URL =
-        process.env.NEXT_PUBLIC_API_URL === undefined
-            ? "http://localhost:8088"
-            : process.env.NEXT_PUBLIC_API_URL;
-
-    // Function to handle logout
-    const handleLogout = () => {
-        // Clear user token or session data
-        localStorage.removeItem("token");
-
-        // Redirect to login page or any other page you consider as the logout landing page
-        router.push('/login');
-    };
-
-    // Function to check if the token is expired
-    const isTokenExpired = (token) => {
-        if (!token) return true;
-        const decoded = jwtDecode(token);
-        const currentTime = Date.now() / 1000; // in seconds
-        return decoded.exp < currentTime;
-    };
-
-    // Device types
-    const deviceTypes = ["Wearable Device", "Portable Device"];
-
-    // Specifications for each device type
-    const portableDeviceSpecs = [
-        "aquired_price", // "rental_price", "usage_frequency"
-    ];
-    const wearableDeviceSpecs = [
-        "aquired_price", // "rental_price", "data_sync_frequency"
-    ];
-
-    // Hospital specifications
-    const hospitalSpecs = [
-        "Medivale", "HealPoint", "LifeCare", "All Hospitals"
-    ];
+    const [averageResult, setAverageResult] = useState(0);
 
     // Set available specifications based on the selected device type
     useEffect(() => {
-        switch (deviceType) {
-            case "Wearable Device":
-                setAvailableSpecifications(wearableDeviceSpecs);
-                break;
-            case "Portable Device":
-                setAvailableSpecifications(portableDeviceSpecs);
-                break;
-            default:
-                setAvailableSpecifications([]);
+        if (deviceType) {
+            setAvailableSpecifications(allSpecifications);
+        } else {
+            setAvailableSpecifications([]);
         }
     }, [deviceType]);
 
-    // Footer component
-    const Footer = () => (
-        <footer className="text-center text-sm text-gray-500 py-2 absolute bottom-0 w-full">
-            © {new Date().getFullYear()} Septon. All rights reserved.
-        </footer>
-    );
-
-    // Function to handle redirection to the other calculation pages
+    // Function to handle redirection to other calculation pages
     const handleCalculationChange = (path) => {
         setErrorMessage("");
         router.push(path);
@@ -87,33 +38,27 @@ export default function ResearcherAverage() {
         setErrorMessage("");
 
         // Check for empty fields
-        if (!deviceType || !specification || !hospital || !startDate || !endDate) {
+        if (!deviceType || !specification || !startDate || !endDate || !inputValue) {
             setErrorMessage("Please fill in all fields");
             return;
         }
 
-        let selectedHospitals = hospital === "All Hospitals" ? hospitalSpecs.slice(0, -1) : [hospital];
-        selectedHospitals = selectedHospitals.map(hosp => hosp.toUpperCase().replace(/ /g, ''));
-
         // Query payload
         const payload = {
             query_type: "AVERAGE",
-            device_type: deviceType.toUpperCase().replace(' ', '_'),
-            hospital_list: {
-                hospitals: selectedHospitals.map(hospital => hospital.toUpperCase().replace(' ', '')),
+            device_data: {
+                device_type: { plain: deviceType.toUpperCase().replace(' ', '_') },
+                filters: [{ field: specification.toLowerCase(), value: { plain: inputValue.toUpperCase().replace(/ /g, '_') } }],
             },
-            start_time: startDate + ":00Z",
-            stop_time: endDate + ":00Z",
-            filter_list: {
-                filters: []
+            timestamp: {
+                start_time: { plain: startDate + ":00Z" },
+                stop_time: { plain: endDate + ":00Z" },
             },
-            field: specification.replace(/ /g, '_').toLowerCase(),
-            value: null,
         };
 
         const token = localStorage.getItem("token");
         if (isTokenExpired(token)) {
-            handleLogout(); 
+            handleLogout();
             return Promise.reject("Token expired");
         }
 
@@ -147,14 +92,14 @@ export default function ResearcherAverage() {
     return (
         <main>
             <div className="flex flex-1 min-h-screen bg-gray-100 items-center justify-center flex-col">
-                <nav className=" text-white p-3 w-full fixed top-0 left-0 z-50 " style={{ boxShadow: '0 2px 4px rgba(0,0,0,0.1)' }}>
+                <nav className="text-white p-3 w-full fixed top-0 left-0 z-50" style={{ boxShadow: '0 2px 4px rgba(0,0,0,0.1)' }}>
                     <div className="container mx-auto flex justify-between items-center">
                         <a href="https://septon-project.eu/" target="_blank" rel="noopener noreferrer">
                             <img src="/images/septon_logo.png" alt="Logo" className="px-5 h-16 mr-10" />
                         </a>
                         <button
                             onClick={handleLogout}
-                            className="px-8 text-teal-600 border border-teal-600 border-2 hover:text-white  hover:bg-teal-600 duration-300 font-bold py-2 px-4 rounded"
+                            className="px-8 text-teal-600 border border-teal-600 border-2 hover:text-white hover:bg-teal-600 duration-300 font-bold py-2 px-4 rounded"
                         >
                             Logout
                         </button>
@@ -188,41 +133,33 @@ export default function ResearcherAverage() {
                             className="w-full p-3 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-teal-600 focus:border-transparent"
                             value={deviceType}
                             onChange={(e) => {
-                                setDeviceType(e.target.value),
-                                    setErrorMessage("")
+                                setDeviceType(e.target.value.toUpperCase().replace(/ /g, '_'));
+                                setErrorMessage("");
                             }}
                         >
                             <option value="">Select Device Type</option>
-                            {deviceTypes.map(type => <option key={type} value={type}>{type}</option>)}
+                            {deviceCategories.map(type => (
+                                <option key={type} value={type.toUpperCase().replace(/ /g, '_')}>{type.toUpperCase().replace(/ /g, '_')}</option>
+                            ))}
                         </select>
 
                         <select
                             className="w-full p-3 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-teal-600 focus:border-transparent"
                             value={specification}
-                            onChange={(e) => {
-                                setSpecification(e.target.value),
-                                    setErrorMessage("")
+                            onChange={e => {
+                                setSpecification(e.target.value);
+                                setErrorMessage("");
                             }}
                         >
                             <option value="">Select Specification</option>
                             {availableSpecifications.map(spec => (
-                                <option key={spec} value={spec}>{spec.replace(/_/g, ' ')}</option> // Replace underscores with spaces for readability
+                                <option key={spec} value={spec}>{spec.toUpperCase().replace(/ /g, '_')}</option>
                             ))}
                         </select>
-                        <select
-                            className="w-full p-3 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-teal-600 focus:border-transparent"
-                            value={hospital}
-                            onChange={(e) => {
-                                setHospital(e.target.value),
-                                    setErrorMessage("")
-                            }}
-                        >
-                            <option value="">Select Hospital</option>
-                            {hospitalSpecs.map(spec => (
-                                <option key={spec} value={spec}>{spec.replace(/_/g, ' ')}</option> // Replace underscores with spaces for readability
-                            ))}
-                        </select>
-                        {/* "From" and "To" date and time input containers*/}
+
+                        {/* Render input field based on the selected specification */}
+                        {specification && renderInputField(specification, inputValue, setInputValue)}
+
                         <div className="flex w-full">
                             <div className="flex-1 mr-2">
                                 <label htmlFor="startDateTime" className="block text-sm font-medium" style={{ color: 'rgba(13, 148, 136, 1)' }}>From</label>
@@ -231,8 +168,8 @@ export default function ResearcherAverage() {
                                     id="startDateTime"
                                     value={startDate}
                                     onChange={(e) => {
-                                        setStartDate(e.target.value),
-                                            setErrorMessage("")
+                                        setStartDate(e.target.value);
+                                        setErrorMessage("");
                                     }}
                                     className="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-teal-600 focus:border-transparent"
                                 />
@@ -244,13 +181,14 @@ export default function ResearcherAverage() {
                                     id="endDateTime"
                                     value={endDate}
                                     onChange={(e) => {
-                                        setEndDate(e.target.value),
-                                            setErrorMessage("")
+                                        setEndDate(e.target.value);
+                                        setErrorMessage("");
                                     }}
                                     className="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-teal-600 focus:border-transparent"
                                 />
                             </div>
                         </div>
+
                         {errorMessage && (
                             <div className="text-red-500 mb-4">
                                 {errorMessage}
@@ -271,13 +209,13 @@ export default function ResearcherAverage() {
                         </h1>
                         <div className="w-full p-4 border border-gray-300 rounded">
                             <h2 className="text-gray-600 text-xl font-bold">
-                                Total Average: {averageReult}
+                                Total Average: {averageResult}
                             </h2>
                         </div>
                     </div>
                 </div>
             </div>
             <Footer />
-        </main >
+        </main>
     );
 }

@@ -1,7 +1,8 @@
 "use client";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { jwtDecode } from "jwt-decode";
+import { Footer, API_URL, handleLogout, isTokenExpired } from './../utils';
+import { deviceCategories, allSpecifications, renderInputField } from '../specifications';
 
 // Count researcher page
 export default function ResearcherCount() {
@@ -10,80 +11,20 @@ export default function ResearcherCount() {
     const [deviceType, setDeviceType] = useState('');
     const [specification, setSpecification] = useState('');
     const [availableSpecifications, setAvailableSpecifications] = useState([]);
-    const [hospital, setHospital] = useState('');
-    const [medicalSpeciality, setMedicalSpeciality] = useState('');
-    const [manufacturerName, setManufacturerName] = useState('');
-    const [operatingSystemVersion, setOperatingSystemVersion] = useState('');
+    const [inputValue, setInputValue] = useState(''); // State for the input field value
     const [startDate, setStartDate] = useState('');
     const [endDate, setEndDate] = useState('');
     const [errorMessage, setErrorMessage] = useState("");
     const [versionCount, setVersionCount] = useState(0);
 
-    const API_URL =
-        process.env.NEXT_PUBLIC_API_URL === undefined
-            ? "http://localhost:8088"
-            : process.env.NEXT_PUBLIC_API_URL;
-
-    // Function to handle logout
-    const handleLogout = () => {
-        // Clear user token or session data
-        localStorage.removeItem("token");
-
-        // Redirect to login page or any other page you consider as the logout landing page
-        router.push('/login');
-    };
-
-    // Function to check if the token is expired
-    const isTokenExpired = (token) => {
-        if (!token) return true;
-        const decoded = jwtDecode(token);
-        const currentTime = Date.now() / 1000; // in seconds
-        return decoded.exp < currentTime;
-    };
-
-    // Device types
-    const deviceTypes = ["Wearable Device", "Portable Device", "Both"];
-
-    // Specifications for each device type
-    const portableDeviceSpecs = [
-        "medical_speciality", "manufacturer_name", "operating_system"
-    ];
-    const wearableDeviceSpecs = [
-        "medical_speciality", "manufacturer_name", "operating_system"
-    ];
-    const commonSpecs = [
-        "medical_speciality", "manufacturer_name", "operating_system"
-    ];
-
-    // Hospital specifications
-    const hospitalSpecs = [
-        "Medivale", "HealPoint", "LifeCare", "All Hospitals",
-    ];
-
-    // Medical speciality and manufacturer name options
-    const medicalSpecialityOptions = [
-        "Cardiology", "Neurology", "Oncology", "Other", "All Specialities"
-    ];
-    const manufacturerNameOptions = [
-        "MediTech", "HealthCorp", "LifeInstruments", "GlobalMed", "All Manufacturers"
-    ];
 
     // Set available specifications based on the selected device type
     useEffect(() => {
-        switch (deviceType) {
-            case "Wearable Device":
-                setAvailableSpecifications(wearableDeviceSpecs);
-                break;
-            case "Portable Device":
-                setAvailableSpecifications(portableDeviceSpecs);
-                break;
-            case "Both":
-                setAvailableSpecifications(commonSpecs);
-                break;
-            default:
-                setAvailableSpecifications([]);
+        if (deviceType) {
+            setAvailableSpecifications(allSpecifications);
+        } else {
+            setAvailableSpecifications([]);
         }
-        // updsate the state of the version count
     }, [deviceType]);
 
     // Function to execute the query
@@ -92,46 +33,42 @@ export default function ResearcherCount() {
         setErrorMessage("");
 
         // Check for empty fields
-        if (!deviceType || !specification || !hospital || !startDate || !endDate ||
-            (specification === "medical_speciality" && !medicalSpeciality) ||
-            (specification === "manufacturer_name" && !manufacturerName) ||
-            (specification === "operating_system" && !operatingSystemVersion)) {
+        if (!deviceType || !specification || !startDate || !endDate ||
+            (specification === "MEDICAL_SPECIALITY" && !medicalSpeciality) ||
+            (specification === "MANUFACTURER_NAME" && !manufacturerName) ||
+            (specification === "OPERATING_SYSTEM" && !operatingSystemVersion)) {
             setErrorMessage("Please fill in all fields");
             return;
         }
 
-        let selectedHospitals = hospital === "All Hospitals" ? hospitalSpecs.slice(0, -1) : [hospital];
-        selectedHospitals = selectedHospitals.map(hosp => hosp.toUpperCase().replace(/ /g, ''));
-
         // Prepare filters based on the selected specification
         let filters = [];
-        if (specification === "medical_speciality" && medicalSpeciality !== "All Specialities") {
-            filters.push({ field: "medical_speciality", value: medicalSpeciality.toUpperCase().replace(' ', '_') });
+        if (specification === "MEDICAL_SPECIALITY") {
+            filters.push({ field: "speciality", value: { plain: medicalSpeciality.toUpperCase().replace(/ /g, '_') } });
         }
-        if (specification === "manufacturer_name" && manufacturerName !== "All Manufacturers") {
-            filters.push({ field: "manufacturer_name", value: manufacturerName.toUpperCase().replace(' ', '_') });
+        if (specification === "MANUFACTURER_NAME") {
+            filters.push({ field: "manufacturer", value: { plain: manufacturerName.toUpperCase().replace(/ /g, '_') } });
         }
-        if (specification === "operating_system" && operatingSystemVersion) {
+        if (specification === "OPERATING_SYSTEM") {
             const versionPattern = /^v\d+\.\d+\.\d+$/;
-        if (!versionPattern.test(operatingSystemVersion)) {
-            setErrorMessage("Version format should be v{number}.{number}.{number}");
-            return;
-        }
-            filters.push({ field: "operating_system_version", value: operatingSystemVersion.toUpperCase().replace(' ', '_') });
+            if (!versionPattern.test(operatingSystemVersion)) {
+                setErrorMessage("Version format should be v{number}.{number}.{number}");
+                return;
+            }
+            filters.push({ field: "firmware_version", value: { plain: operatingSystemVersion.toUpperCase().replace(/ /g, '_') } });
         }
 
         // Prepare the payload for the query
         const payload = {
             query_type: "COUNT",
-            device_type: deviceType === "Both" ? undefined : deviceType.toUpperCase().replace(' ', '_'),
-            hospital_list: {
-                hospitals: selectedHospitals,
+            device_data: {
+                device_type: { plain: deviceType },
+                filters: filters,
             },
-            start_time: startDate + ":00Z",
-            stop_time: endDate + ":00Z",
-            filter_list: {
-                filters: filters
-            }
+            timestamp: {
+                start_time: { plain: startDate + ":00Z" },
+                stop_time: { plain: endDate + ":00Z" }
+            },
         };
 
         const token = localStorage.getItem("token");
@@ -144,7 +81,7 @@ export default function ResearcherCount() {
 
         // Execute the query
         try {
-            const response = await fetch(`${API_URL}/api/queries`, { // Make sure to use the correct endpoint
+            const response = await fetch(`${API_URL}/api/queries`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
@@ -171,30 +108,17 @@ export default function ResearcherCount() {
         }
     }
 
-    // Function to handle redirection to the other calculation pages
-    const handleCalculationChange = (path) => {
-        setErrorMessage("");
-        router.push(path);
-    };
-
-    // Footer component
-    const Footer = () => (
-        <footer className="text-center text-sm text-gray-500 py-2 absolute bottom-0 w-full">
-            © {new Date().getFullYear()} Septon. All rights reserved.
-        </footer>
-    );
-
     return (
         <main>
             <div className="flex flex-1 min-h-screen bg-gray-100 items-center justify-center flex-col">
-                <nav className=" text-white p-3 w-full fixed top-0 left-0 z-50 " style={{ boxShadow: '0 2px 4px rgba(0,0,0,0.1)' }}>
+                <nav className="text-white p-3 w-full fixed top-0 left-0 z-50" style={{ boxShadow: '0 2px 4px rgba(0,0,0,0.1)' }}>
                     <div className="container mx-auto flex justify-between items-center">
                         <a href="https://septon-project.eu/" target="_blank" rel="noopener noreferrer">
                             <img src="/images/septon_logo.png" alt="Logo" className="px-5 h-16 mr-10" />
                         </a>
                         <button
                             onClick={handleLogout}
-                            className="px-8 text-teal-600 border border-teal-600 border-2 hover:text-white  hover:bg-teal-600 duration-300 font-bold py-2 px-4 rounded"
+                            className="px-8 text-teal-600 border border-teal-600 border-2 hover:text-white hover:bg-teal-600 duration-300 font-bold py-2 px-4 rounded"
                         >
                             Logout
                         </button>
@@ -216,7 +140,7 @@ export default function ResearcherCount() {
                     </div>
                 </div>
                 <div
-                    className="bg-white shadow-lg flex w-full max-w-6xl mx-4 my-8 p-8 space-x-8 min-h-full h-300 "
+                    className="bg-white shadow-lg flex w-full max-w-6xl mx-4 my-8 p-8 space-x-8 min-h-full h-300"
                     style={{ minHeight: '510px', marginTop: '150px' }}
                 >
                     <div className="flex flex-col items-center justify-center w-1/2 space-y-4">
@@ -227,86 +151,33 @@ export default function ResearcherCount() {
                             className="w-full p-3 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-teal-600 focus:border-transparent"
                             value={deviceType}
                             onChange={(e) => {
-                                setDeviceType(e.target.value),
-                                    setErrorMessage("");
+                                setDeviceType(e.target.value.toUpperCase().replace(/ /g, '_'));
+                                setErrorMessage("");
                             }}
                         >
                             <option value="">Select Device Type</option>
-                            {deviceTypes.map(type => (
-                                <option key={type} value={type}>{type}</option>
+                            {deviceCategories.map(type => (
+                                <option key={type} value={type.toUpperCase().replace(/ /g, '_')}>{type.toUpperCase().replace(/ /g, '_')}</option>
                             ))}
                         </select>
 
-                        <select className="w-full p-3 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-teal-600 focus:border-transparent"
+                        <select
+                            className="w-full p-3 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-teal-600 focus:border-transparent"
                             value={specification}
                             onChange={e => {
-                                setSpecification(e.target.value),
-                                    setErrorMessage("");
+                                setSpecification(e.target.value);
+                                setErrorMessage("");
                             }}
                         >
                             <option value="">Select Specification</option>
                             {availableSpecifications.map(spec => (
-                                <option key={spec} value={spec}>{spec.replace(/_/g, ' ')}</option> // Replace underscores with spaces for readability
+                                <option key={spec} value={spec}>{spec.toUpperCase().replace(/ /g, '_')}</option>
                             ))}
                         </select>
-                        {specification === "medical_speciality" && (
-                            <select
-                                className="w-full p-3 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-teal-600 focus:border-transparent"
-                                value={medicalSpeciality}
-                                onChange={(e) => {
-                                    setMedicalSpeciality(e.target.value),
-                                        setErrorMessage("");
-                                }}
-                            >
-                                <option value="">Select Medical Speciality</option>
-                                {medicalSpecialityOptions.map(option => (
-                                    <option key={option} value={option}>{option}</option>
-                                ))}
-                            </select>
-                        )}
 
-                        {specification === "manufacturer_name" && (
-                            <select
-                                className="w-full p-3 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-teal-600 focus:border-transparent"
-                                value={manufacturerName}
-                                onChange={(e) => {
-                                    setManufacturerName(e.target.value),
-                                        setErrorMessage("");
-                                }}
-                            >
-                                <option value="">Select Manufacturer Name</option>
-                                {manufacturerNameOptions.map(option => (
-                                    <option key={option} value={option}>{option}</option>
-                                ))}
-                            </select>
-                        )}
+                        {/* Render input field based on the selected specification */}
+                        {specification && renderInputField(specification, inputValue, setInputValue)}
 
-                        {specification === "operating_system" && (
-                            <input
-                                type="text"
-                                placeholder="Operating System Version (e.g v0.0.1)"
-                                className="w-full p-3 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-teal-600 focus:border-transparent"
-                                value={operatingSystemVersion}
-                                onChange={(e) => {
-                                    setOperatingSystemVersion(e.target.value)
-                                    setErrorMessage("");
-                                }}
-                            />
-                        )}
-                        <select
-                            className="w-full p-3 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-teal-600 focus:border-transparent"
-                            value={hospital}
-                            onChange={(e) => {
-                                setHospital(e.target.value),
-                                    setErrorMessage("");
-                            }}
-                        >
-                            <option value="">Select Hospital</option>
-                            {hospitalSpecs.map(spec => (
-                                <option key={spec} value={spec}>{spec}</option>
-                            ))}
-                        </select>
-                        {/* "From" and "To" date and time input containers*/}
                         <div className="flex w-full">
                             <div className="flex-1 mr-2">
                                 <label htmlFor="startDateTime" className="block text-sm font-medium" style={{ color: 'rgba(13, 148, 136, 1)' }}>From</label>
@@ -315,8 +186,8 @@ export default function ResearcherCount() {
                                     id="startDateTime"
                                     value={startDate}
                                     onChange={(e) => {
-                                        setStartDate(e.target.value),
-                                            setErrorMessage("");
+                                        setStartDate(e.target.value);
+                                        setErrorMessage("");
                                     }}
                                     className="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-teal-600 focus:border-transparent"
                                 />
@@ -328,18 +199,20 @@ export default function ResearcherCount() {
                                     id="endDateTime"
                                     value={endDate}
                                     onChange={(e) => {
-                                        setEndDate(e.target.value),
-                                            setErrorMessage("");
+                                        setEndDate(e.target.value);
+                                        setErrorMessage("");
                                     }}
                                     className="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-teal-600 focus:border-transparent"
                                 />
                             </div>
                         </div>
+
                         {errorMessage && (
                             <div className="text-red-500">
                                 {errorMessage}
                             </div>
                         )}
+
                         <button
                             type="button"
                             onClick={executeQuery}
