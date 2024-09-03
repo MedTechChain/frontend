@@ -1,7 +1,7 @@
 "use client";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { Footer, API_URL, handleLogout, isTokenExpired } from './../utils';
+import { Footer, API_URL, handleLogout, isTokenExpired, handleCalculationChange } from './../utils';
 import { deviceCategories, allSpecifications, renderInputField } from '../specifications';
 
 // Average calculation researcher page
@@ -26,11 +26,6 @@ export default function ResearcherAverage() {
         }
     }, [deviceType]);
 
-    // Function to handle redirection to other calculation pages
-    const handleCalculationChange = (path) => {
-        setErrorMessage("");
-        router.push(path);
-    };
 
     // Function to execute the query
     async function executeQuery(event) {
@@ -112,11 +107,11 @@ export default function ResearcherAverage() {
                         >Average</button>
                         <button
                             className="py-2 px-8 border border-teal-600 border-2 text-teal-600 rounded hover:bg-teal-600 hover:text-white font-bold"
-                            onClick={() => handleCalculationChange('/researchercount')}
+                            onClick={() => handleCalculationChange('/researchercount', setErrorMessage, router)}
                         >Count</button>
                         <button
                             className="py-2 px-6 border border-teal-600 border-2 text-teal-600 rounded hover:bg-teal-600 hover:text-white font-bold"
-                            onClick={() => handleCalculationChange('/researcherhistogram')}
+                            onClick={() => handleCalculationChange('/researcherhistogram', setErrorMessage, router)}
                         >Count All</button>
                     </div>
                 </div>

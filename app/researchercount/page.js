@@ -1,7 +1,7 @@
 "use client";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { Footer, API_URL, handleLogout, isTokenExpired } from './../utils';
+import { Footer, API_URL, handleLogout, isTokenExpired, handleCalculationChange } from './../utils';
 import { deviceCategories, allSpecifications, renderInputField } from '../specifications';
 
 // Count researcher page
@@ -33,29 +33,9 @@ export default function ResearcherCount() {
         setErrorMessage("");
 
         // Check for empty fields
-        if (!deviceType || !specification || !startDate || !endDate ||
-            (specification === "MEDICAL_SPECIALITY" && !medicalSpeciality) ||
-            (specification === "MANUFACTURER_NAME" && !manufacturerName) ||
-            (specification === "OPERATING_SYSTEM" && !operatingSystemVersion)) {
+        if (!deviceType || !specification || !startDate || !endDate || !inputValue) {
             setErrorMessage("Please fill in all fields");
             return;
-        }
-
-        // Prepare filters based on the selected specification
-        let filters = [];
-        if (specification === "MEDICAL_SPECIALITY") {
-            filters.push({ field: "speciality", value: { plain: medicalSpeciality.toUpperCase().replace(/ /g, '_') } });
-        }
-        if (specification === "MANUFACTURER_NAME") {
-            filters.push({ field: "manufacturer", value: { plain: manufacturerName.toUpperCase().replace(/ /g, '_') } });
-        }
-        if (specification === "OPERATING_SYSTEM") {
-            const versionPattern = /^v\d+\.\d+\.\d+$/;
-            if (!versionPattern.test(operatingSystemVersion)) {
-                setErrorMessage("Version format should be v{number}.{number}.{number}");
-                return;
-            }
-            filters.push({ field: "firmware_version", value: { plain: operatingSystemVersion.toUpperCase().replace(/ /g, '_') } });
         }
 
         // Prepare the payload for the query
@@ -128,14 +108,14 @@ export default function ResearcherCount() {
                     <div className="justify-center space-x-6 py-4 mt-16">
                         <button
                             className="py-2 px-6 border border-teal-600 border-2 text-teal-600 rounded hover:bg-teal-600 hover:text-white font-bold"
-                            onClick={() => handleCalculationChange('/researcheraverage')}
+                            onClick={() => handleCalculationChange('/researcheraverage', setErrorMessage, router)}
                         >Average</button>
                         <button
                             className="py-2 px-8 bg-teal-600 border border-teal-600 border-2 text-white rounded font-bold"
                         >Count</button>
                         <button
                             className="py-2 px-6 border border-teal-600 border-2 text-teal-600 rounded hover:bg-teal-600 hover:text-white font-bold"
-                            onClick={() => handleCalculationChange('/researcherhistogram')}
+                            onClick={() => handleCalculationChange('/researcherhistogram', setErrorMessage, router)}
                         >Count All</button>
                     </div>
                 </div>

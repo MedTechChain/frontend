@@ -30,3 +30,9 @@ export const isTokenExpired = (token) => {
     const currentTime = Date.now() / 1000; // in seconds
     return decoded.exp < currentTime;
 };
+
+// Function to handle redirection to other calculation pages
+export const handleCalculationChange = (path, setErrorMessage, router) => {
+    setErrorMessage("");
+    router.push(path);
+};

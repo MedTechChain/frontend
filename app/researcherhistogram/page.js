@@ -2,7 +2,7 @@
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { Bar } from 'react-chartjs-2';
-import { Footer, API_URL, handleLogout, isTokenExpired } from './../utils';
+import { Footer, API_URL, handleLogout, isTokenExpired, handleCalculationChange } from './../utils';
 import { deviceCategories, allSpecifications, renderInputField } from './../specifications'; // Ensure the path is correct
 
 import {
@@ -74,12 +74,6 @@ export default function ResearcherHistogram() {
             ],
         });
     }, [deviceType]);
-
-    // Function to handle redirection to other calculation pages
-    const handleCalculationChange = (path) => {
-        setErrorMessage("");
-        router.push(path);
-    };
 
     async function handleExecuteQuery(event) {
         event.preventDefault();
@@ -171,11 +165,11 @@ export default function ResearcherHistogram() {
                     <div className="justify-center space-x-6 py-4 mt-16">
                         <button
                             className="py-2 px-6 border border-teal-600 border-2 text-teal-600 rounded hover:bg-teal-600 hover:text-white font-bold"
-                            onClick={() => handleCalculationChange('/researcheraverage')}
+                            onClick={() => handleCalculationChange('/researcheraverage', setErrorMessage, router)}
                         >Average</button>
                         <button
                             className="py-2 px-8 border border-teal-600 border-2 text-teal-600 rounded hover:bg-teal-600 hover:text-white font-bold"
-                            onClick={() => handleCalculationChange('/researchercount')}
+                            onClick={() => handleCalculationChange('/researchercount', setErrorMessage, router)}
                         >Count</button>
                         <button
                             className="py-2 px-6 bg-teal-600 border border-teal-600 border-2 text-white rounded font-bold"
