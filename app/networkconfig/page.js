@@ -13,6 +13,8 @@ export default function Dashboard() {
     const [updateConfigs, setUpdateConfigs] = useState([]);
     const [currentConfigs, setCurrentConfigs] = useState([]);
     const [placeholder, setPlaceholder] = useState("value");
+    const [names, setNames] = useState([]);
+    const [selectedHopsital, setSelectedHopsital] = useState({ "name": "", "map": [] });
 
     // API URL from environment values or use default value
     const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8088";
@@ -39,7 +41,7 @@ export default function Dashboard() {
     async function addConfig(event) {
         event.preventDefault();
         if (newConfigKey && newConfigValue && newConfigKey !== "Select a property") {
-            setUpdateConfigs([...updateConfigs, {"key": newConfigKey, "value": newConfigValue}]);
+            setUpdateConfigs([...updateConfigs, { "key": newConfigKey, "value": newConfigValue }]);
 
             // Remove the added config key from the dropdown
             setPossibleConfigs(possibleConfigs.filter(config => config !== newConfigKey));
@@ -52,8 +54,7 @@ export default function Dashboard() {
     async function handleUpdateConfig(event) {
         event.preventDefault();
 
-        if (updateConfigs.length != 0) {
-
+        if (updateConfigs.length !== 0) {
             const token = localStorage.getItem("token");
             if (isTokenExpired(token)) {
                 handleLogout();
@@ -61,13 +62,13 @@ export default function Dashboard() {
             }
 
             try {
-                const response = await fetch(`${API_URL}/api/configs/platform`, {
+                const response = await fetch(`${API_URL}/api/configs/network`, {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json",
                         Authorization: `Bearer ${token}`,
                     },
-                    body: JSON.stringify({"map": updateConfigs}),
+                    body: JSON.stringify({ "name": selectedHopsital.name, "map": updateConfigs }),
                 });
 
                 if (!response.ok) {
@@ -84,7 +85,7 @@ export default function Dashboard() {
     async function fetchConfigs() {
         const token = localStorage.getItem("token");
         try {
-            const response = await fetch(`${API_URL}/api/configs/platform`, {
+            const response = await fetch(`${API_URL}/api/configs/network`, {
                 method: "GET",
                 headers: {
                     "Content-Type": "application/json",
@@ -97,8 +98,12 @@ export default function Dashboard() {
             }
 
             const data = await response.json();
-            setPossibleConfigs(data.map.map(o => o.key));
-            setCurrentConfigs(data.map);
+            const firstName = data.list[0].name;
+            const firstMap = data.list.find(o => o.name === firstName);
+            setNames(data.list.map(o => o.name).filter(o => o).filter(o => o !== "")); // Populate names dropdown
+            setSelectedHopsital(firstMap);
+            setPossibleConfigs(firstMap.map.map(o => o.key));
+            setCurrentConfigs(data);
         } catch (error) {
             console.error("Error fetching configs:", error);
         }
@@ -107,6 +112,20 @@ export default function Dashboard() {
     useEffect(() => {
         fetchConfigs();
     }, [API_URL]);
+
+    const handleNameChange = (event) => {
+        const selectedName = event.target.value;
+        const selectedHospital = currentConfigs.list.find(o => o.name === selectedName);
+
+        // Reset form states
+        setNewConfigKey("Select a property");
+        setNewConfigValue("");
+        setUpdateConfigs([]);
+        setPlaceholder("value");
+
+        setSelectedHopsital(selectedHospital);
+        setPossibleConfigs(selectedHospital.map.map(o => o.key));
+    };
 
     // Footer component
     const Footer = () => (
@@ -161,9 +180,24 @@ export default function Dashboard() {
                         <h2 className="text-teal-600 text-4xl font-bold pb-4 select-none text-center">
                             Current Configs
                         </h2>
+                        <div className="relative text-left mb-6 w-full max-w-lg">
+                            <label htmlFor="name-select" className="block text-sm font-medium text-gray-700 mb-2">Select Hospital:</label>
+                            <select
+                                id="name-select"
+                                value={selectedHopsital.name}
+                                onChange={handleNameChange}
+                                className="bg-gray-100 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-teal-500 focus:border-teal-500 sm:text-sm rounded-md"
+                            >
+                                {names.map((name, index) => (
+                                    <option key={index} value={name}>
+                                        {name}
+                                    </option>
+                                ))}
+                            </select>
+                        </div>
                         <div className="flex flex-col bg-gray-50 h-full w-full overflow-hidden shadow-inner rounded-lg p-4">
                             <div className="overflow-auto h-full hover:overflow-y-scroll scrollbar-thin scrollbar-thumb-rounded scrollbar-thumb-gray-400">
-                                {currentConfigs.map((o, index) => (
+                                {selectedHopsital.map.map((o, index) => (
                                     <div
                                         key={index}
                                         className="flex flex-col py-2 px-3 mb-2 bg-white rounded-lg shadow hover:shadow-lg transition-shadow duration-200"
@@ -196,7 +230,7 @@ export default function Dashboard() {
                                     value={newConfigKey}
                                     onChange={(e) => {
                                         setNewConfigKey(e.target.value);
-                                        const selectedConfig = currentConfigs.find(c => c.key === e.target.value);
+                                        const selectedConfig = selectedHopsital.map.find(c => c.key === e.target.value);
                                         setPlaceholder(selectedConfig ? selectedConfig.value : "value");
                                         setNewConfigValue(""); // Clear the input field when a new property is selected
                                     }}

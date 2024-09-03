@@ -55,9 +55,12 @@ export default function Dashboard() {
         router.push('/login');
     };
 
-    // Function to handle logout
     const handleConfigurePlatform = () => {
         router.push('/platformconfig');
+    };
+
+    const handleNetworkConfig = () => {
+        router.push('/networkconfig');
     };
 
     const isTokenExpired = (token) => {
@@ -388,7 +391,7 @@ export default function Dashboard() {
                                 onClick={handleDownloadQueryHistory}
                                 className="px-8 text-teal-600 border border-teal-600 border-2 hover:text-white hover:bg-teal-600 duration-300 font-bold py-2 px-4 rounded"
                             >
-                                Download query history
+                                Query History
                             </button>
                         </div>
 
@@ -397,7 +400,24 @@ export default function Dashboard() {
                                 onClick={handleConfigurePlatform}
                                 className="px-8 text-teal-600 border border-teal-600 border-2 hover:text-white hover:bg-teal-600 duration-300 font-bold py-2 px-4 rounded"
                             >
-                                Configure Platform
+                                Platform Config
+                            </button>
+                        </div>
+
+                        <div className="relative inline-block text-left mr-5"> {/* Added margin-right for spacing */}
+                            <button
+                                onClick={handleNetworkConfig}
+                                className="px-8 text-teal-600 border border-teal-600 border-2 hover:text-white hover:bg-teal-600 duration-300 font-bold py-2 px-4 rounded"
+                            >
+                                Network Config
+                            </button>
+                        </div>
+
+                        <div className="relative inline-block text-left mr-5"> {/* Added margin-right for spacing */}
+                            <button
+                                className="px-8 text-teal-600 border border-teal-600 border-2 hover:text-white hover:bg-teal-600 duration-300 font-bold py-2 px-4 rounded"
+                            >
+                                Audit. Key Exchange
                             </button>
                         </div>
 
