@@ -12,9 +12,10 @@ export default function Dashboard() {
     const [newConfigKey, setNewConfigKey] = useState("Select a property");
     const [newConfigValue, setNewConfigValue] = useState("");
 
-    const [possibleConfigs, setPossibleConfigs] = useState(["a", "b"]);
+    const [possibleConfigs, setPossibleConfigs] = useState([]);
     const [updateConfigs, setUpdateConfigs] = useState({});
-    const [currentConfigs, setCurrentConfigs] = useState({});
+    const [currentConfigs, setCurrentConfigs] = useState([]);
+    const [placeholder, setPlaceholder] = useState("value");
 
 
     // Function to toggle the dropdown for encryption schemes
@@ -72,7 +73,7 @@ export default function Dashboard() {
 
         // Send a POST request to the server to add the new researcher
         try {
-            const response = await fetch(`${API_URL}/api/platform/configs`, {
+            const response = await fetch(`${API_URL}/api/configs/platform`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
@@ -97,7 +98,7 @@ export default function Dashboard() {
     async function fetchConfigs() {
         const token = localStorage.getItem("token");
         try {
-            const response = await fetch(`${API_URL}/api/platform/configs`, {
+            const response = await fetch(`${API_URL}/api/configs/platform`, {
                 method: "GET",
                 headers: {
                     "Content-Type": "application/json",
@@ -110,10 +111,10 @@ export default function Dashboard() {
             }
 
             const data = await response.json();
-            setPossibleConfigs(data.keys);
-            setCurrentConfigs(data.config);
+            setPossibleConfigs(currentConfigs.map(o => o.key));
+            setCurrentConfigs(data.map);
         } catch (error) {
-            console.error("Error fetching researchers:", error);
+            console.error("Error fetching configs:", error);
         }
     }
 
@@ -135,7 +136,7 @@ export default function Dashboard() {
         return () => {
             document.removeEventListener("mousedown", handleClickOutside);
         };
-    }, [API_URL, isDropdownOpen]);
+    }, [API_URL, isDropdownOpen, placeholder]);
 
 
 
@@ -198,8 +199,8 @@ export default function Dashboard() {
                         </h2>
                         <div className="flex flex-col bg-white h-5/6 w-5/6 overflow-y-scroll shadow-lg rounded-lg">
                             {
-                                Object.entries(currentConfigs).map(([key, value], index) => {
-                                    const text = `${key} -> ${value}`
+                                currentConfigs.map((o, index) => {
+                                    const text = `${o.key} -> ${o.value}`
                                     return (
                                         <div
                                             key={index}
@@ -246,6 +247,7 @@ export default function Dashboard() {
                                             {
                                                 possibleConfigs.map((conf, index) => {
                                                     const id = `"menu-item-${index}"`
+                                                    console.log(id);
                                                     return (
                                                         <a href="#" className={`text-gray-700 block px-4 py-2 text-sm hover:bg-gray-200`} role="menuitem" tabIndex="-1" id={id} onClick={() => setNewConfigKey(conf)}>{conf}</a>
                                                     )
@@ -257,9 +259,10 @@ export default function Dashboard() {
                             </div>
                             <input
                                 type="text"
-                                placeholder="value"
+                                placeholder={placeholder}
                                 onChange={(e) => {
                                     setNewConfigValue(e.target.value);
+                                    setPlaceholder(currentConfigs.find(c => c.key == e.target.value).value);
                                 }}
                                 className={`outline-none duration-300 border-solid border-2  p-2 w-full max-w-[30ch] rounded-lg mb-4`} />
 

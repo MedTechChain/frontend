@@ -158,20 +158,21 @@ export default function Dashboard() {
     async function handleDownloadQueryHistory() {
         const token = localStorage.getItem("token");
         try {
-            // const response = await fetch(`${API_URL}/api/queries`, {
-            //     method: "GET",
-            //     headers: {
-            //         "Content-Type": "application/json",
-            //         Authorization: `Bearer ${token}`,
-            //     },
-            // });
+            const response = await fetch(`${API_URL}/api/queries/read`, {
+                method: "GET",
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${token}`,
+                },
+            });
 
-            // if (!response.ok) {
-            //     throw new Error("Failed to fetch queries");
-            // }
+            if (!response.ok) {
+                throw new Error("Failed to fetch queries");
+            }
 
             const json = await response.json();
-            const blob = new Blob([json], { type: 'application/json' }); // Create a blob from the JSON string
+            const jsonString = JSON.stringify(json, null, 2);
+            const blob = new Blob([jsonString], { type: 'application/json' }); // Create a blob from the JSON string
             const url = URL.createObjectURL(blob); // Create a URL for the blob
             const link = document.createElement('a'); // Create an anchor element
             link.href = url;
@@ -180,7 +181,7 @@ export default function Dashboard() {
             link.click(); // Programmatically click the anchor to trigger the download
             document.body.removeChild(link);
         } catch (error) {
-            console.error("Error fetching researchers:", error);
+            console.error("Error fetching queries:", error);
         }
     }
 
