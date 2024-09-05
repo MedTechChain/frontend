@@ -81,47 +81,78 @@ export const medicalSpecialityOptions = [
     "Clinical Neurophysiology",
 ];
 
+// Map of specifications to types and default operators
 export const specificationTypeMap = {
-    "HOSPITAL": "STRING",
-    "MANUFACTURER": "STRING",
-    "MODEL": "STRING",
-    "FIRMWARE_VERSION": "STRING",
-    "DEVICE_TYPE": "STRING",
-    "PRODUCTION_DATE": "TIMESTAMP",
-    "LAST_SERVICE_DATE": "TIMESTAMP",
-    "WARRANTY_EXPIRY_DATE": "TIMESTAMP",
-    "LAST_SYNC_TIME": "TIMESTAMP",
-    "USAGE_HOURS": "INTEGER",
-    "BATTERY_LEVEL": "INTEGER",
-    "SYNC_FREQUENCY_SECONDS": "INTEGER",
-    "ACTIVE_STATUS": "BOOL",
-    "SPECIALITY": "MEDICAL_SPECIALITY",
-    "CATEGORY": "DEVICE_CATEGORY",
+    "HOSPITAL": { type: "STRING", defaultOperator: "EQUALS" },
+    "MANUFACTURER": { type: "STRING", defaultOperator: "EQUALS" },
+    "MODEL": { type: "STRING", defaultOperator: "EQUALS" },
+    "FIRMWARE_VERSION": { type: "STRING", defaultOperator: "EQUALS" },
+    "DEVICE_TYPE": { type: "STRING", defaultOperator: "EQUALS" },
+    "PRODUCTION_DATE": { type: "TIMESTAMP", defaultOperator: "EQUALS" },
+    "LAST_SERVICE_DATE": { type: "TIMESTAMP", defaultOperator: "EQUALS" },
+    "WARRANTY_EXPIRY_DATE": { type: "TIMESTAMP", defaultOperator: "EQUALS" },
+    "LAST_SYNC_TIME": { type: "TIMESTAMP", defaultOperator: "EQUALS" },
+    "USAGE_HOURS": { type: "INTEGER", defaultOperator: "EQUALS" },
+    "BATTERY_LEVEL": { type: "INTEGER", defaultOperator: "EQUALS" },
+    "SYNC_FREQUENCY_SECONDS": { type: "INTEGER", defaultOperator: "EQUALS" },
+    "ACTIVE_STATUS": { type: "BOOL", defaultOperator: "EQUALS" },
+    "SPECIALITY": { type: "MEDICAL_SPECIALITY", defaultOperator: "EQUALS" },
+    "CATEGORY": { type: "DEVICE_CATEGORY", defaultOperator: "EQUALS" },
 };
 
-export const renderInputField = (specification, inputValue, setInputValue) => {
-    const specType = specificationTypeMap[specification];
+// Operators for different types
+const stringOperators = ["EQUALS", "CONTAINS", "STARTS_WITH", "ENDS_WITH"];
+const integerOperators = ["EQUALS", "GREATER_THAN", "LESS_THAN", "GREATER_THAN_OR_EQUAL", "LESS_THAN_OR_EQUAL"];
+const timestampOperators = ["EQUALS", "BEFORE", "AFTER"];
+
+
+// Render input fields based on specification type and include operator selection
+export const renderInputField = (specification, inputValue, setInputValue, operator, setOperator) => {
+    const specConfig = specificationTypeMap[specification];
+    const specType = specConfig.type;
 
     switch (specType) {
         case "STRING":
             return (
-                <input
-                    type="text"
-                    placeholder="Enter text"
-                    className="w-full p-3 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-teal-600 focus:border-transparent"
-                    value={inputValue}
-                    onChange={(e) => setInputValue(e.target.value)}
-                />
+                <>
+                    <select
+                        className="w-full p-3 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-teal-600 focus:border-transparent mb-2"
+                        value={operator}
+                        onChange={(e) => setOperator(e.target.value)}
+                    >
+                        {stringOperators.map(op => (
+                            <option key={op} value={op}>{op.replace('_', ' ')}</option>
+                        ))}
+                    </select>
+                    <input
+                        type="text"
+                        placeholder="Enter text"
+                        className="w-full p-3 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-teal-600 focus:border-transparent"
+                        value={inputValue}
+                        onChange={(e) => setInputValue(e.target.value)}
+                    />
+                </>
             );
         case "INTEGER":
             return (
-                <input
-                    type="number"
-                    placeholder="Enter number"
-                    className="w-full p-3 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-teal-600 focus:border-transparent"
-                    value={inputValue}
-                    onChange={(e) => setInputValue(e.target.value)}
-                />
+                <>
+                    <select
+                        className="w-full p-3 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-teal-600 focus:border-transparent mb-2"
+                        value={operator}
+                        onChange={(e) => setOperator(e.target.value)}
+                    >
+                        {integerOperators.map(op => (
+                            <option key={op} value={op}>{op.replace('_', ' ')}</option>
+                        ))}
+                    </select>
+                    <input
+                        type="number"
+                        placeholder="Enter number"
+                        className="w-full p-3 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-teal-600 focus:border-transparent"
+                        value={inputValue}
+                        onChange={(e) => setInputValue(e.target.value)}
+                    />
+                </>
             );
         case "BOOL":
             return (
@@ -137,12 +168,23 @@ export const renderInputField = (specification, inputValue, setInputValue) => {
             );
         case "TIMESTAMP":
             return (
-                <input
-                    type="datetime-local"
-                    className="w-full p-3 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-teal-600 focus:border-transparent"
-                    value={inputValue}
-                    onChange={(e) => setInputValue(e.target.value)}
-                />
+                <>
+                    <select
+                        className="w-full p-3 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-teal-600 focus:border-transparent mb-2"
+                        value={operator}
+                        onChange={(e) => setOperator(e.target.value)}
+                    >
+                        {timestampOperators.map(op => (
+                            <option key={op} value={op}>{op.replace('_', ' ')}</option>
+                        ))}
+                    </select>
+                    <input
+                        type="datetime-local"
+                        className="w-full p-3 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-teal-600 focus:border-transparent"
+                        value={inputValue}
+                        onChange={(e) => setInputValue(e.target.value)}
+                    />
+                </>
             );
         case "MEDICAL_SPECIALITY":
             return (
@@ -161,4 +203,3 @@ export const renderInputField = (specification, inputValue, setInputValue) => {
             return null;
     }
 };
-

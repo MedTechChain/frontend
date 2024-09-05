@@ -2,8 +2,8 @@
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { Bar } from 'react-chartjs-2';
-import { Footer, API_URL, handleLogout, isTokenExpired, handleCalculationChange } from './../utils';
-import { deviceCategories, allSpecifications, renderInputField } from './../specifications'; // Ensure the path is correct
+import { Footer, API_URL, handleLogout, isTokenExpired, handleCalculationChange, addFilter, updateFilter, removeFilter } from './../utils';
+import { deviceCategories, allSpecifications, renderInputField, specificationTypeMap } from './../specifications';
 
 import {
     Chart as ChartJS,
@@ -29,9 +29,8 @@ export default function ResearcherHistogram() {
     const router = useRouter();
 
     const [deviceType, setDeviceType] = useState('');
-    const [specification, setSpecification] = useState('');
     const [availableSpecifications, setAvailableSpecifications] = useState([]);
-    const [inputValue, setInputValue] = useState(''); // State for input field value
+    const [filters, setFilters] = useState([]); // State to hold multiple filters
     const [startDate, setStartDate] = useState('');
     const [endDate, setEndDate] = useState('');
     const [errorMessage, setErrorMessage] = useState("");
@@ -80,17 +79,69 @@ export default function ResearcherHistogram() {
         setErrorMessage("");
 
         // Check for empty fields
-        if (!deviceType || !specification || !startDate || !endDate || !inputValue) {
+        if (!deviceType || !startDate || !endDate) {
             setErrorMessage("Please fill in all fields");
             return;
         }
+
+        // Prepare filters based on the selected specifications and operators
+        const filterPayloads = filters.map((filter) => {
+            const { specification, inputValue, operator } = filter;
+            const specConfig = specificationTypeMap[specification];
+
+            switch (specConfig.type) {
+                case "STRING":
+                    return {
+                        field: specification.toLowerCase(),
+                        string_filter: {
+                            value: inputValue,
+                            operator: operator || specConfig.defaultOperator
+                        }
+                    };
+                case "INTEGER":
+                    return {
+                        field: specification.toLowerCase(),
+                        integer_filter: {
+                            value: parseInt(inputValue),
+                            operator: operator || specConfig.defaultOperator
+                        }
+                    };
+                case "TIMESTAMP":
+                    return {
+                        field: specification.toLowerCase(),
+                        timestamp_filter: {
+                            value: inputValue, // Ensure correct formatting
+                            operator: operator || specConfig.defaultOperator
+                        }
+                    };
+                case "BOOL":
+                    return {
+                        field: specification.toLowerCase(),
+                        bool_filter: {
+                            value: inputValue === "true",
+                            operator: "EQUALS" // Only operator available for BOOL
+                        }
+                    };
+                case "MEDICAL_SPECIALITY":
+                case "DEVICE_CATEGORY":
+                    return {
+                        field: specification.toLowerCase(),
+                        enum_filter: {
+                            value: inputValue
+                        }
+                    };
+                default:
+                    setErrorMessage("Unsupported filter type");
+                    return null;
+            }
+        }).filter(filter => filter !== null); // Filter out any null values
 
         // Payload for the query
         const payload = {
             query_type: "COUNT_ALL",
             device_data: {
                 device_type: { plain: deviceType === "Both" ? undefined : deviceType.toUpperCase().replace(' ', '_') },
-                filters: [{ field: specification.toLowerCase(), value: { plain: inputValue.toUpperCase().replace(/ /g, '_') } }],
+                filters: filterPayloads,
             },
             timestamp: {
                 start_time: { plain: startDate + ":00Z" },
@@ -122,7 +173,7 @@ export default function ResearcherHistogram() {
             }
 
             const data = await response.json();
-            const personalizedLabel = `Histogram for ${deviceType} - ${specification}`;
+            const personalizedLabel = `Histogram for ${deviceType}`;
 
             // Update the histogram data
             setHistogramData({
@@ -148,11 +199,24 @@ export default function ResearcherHistogram() {
     return (
         <main>
             <div className="flex flex-1 min-h-screen bg-gray-100 items-center justify-center flex-col">
-                <nav className="text-white p-3 w-full fixed top-0 left-0 z-50" style={{ boxShadow: '0 2px 4px rgba(0,0,0,0.1)' }}>
+                <nav className="text-white p-3 w-full fixed top-0 left-0 z-50 bg-gray-100" style={{ boxShadow: '0 2px 4px rgba(0,0,0,0.1)' }}>
                     <div className="container mx-auto flex justify-between items-center">
                         <a href="https://septon-project.eu/" target="_blank" rel="noopener noreferrer">
                             <img src="/images/septon_logo.png" alt="Logo" className="px-5 h-16 mr-10" />
                         </a>
+                        <div className="flex space-x-6">
+                            <button
+                                className="py-2 px-6 border border-teal-600 border-2 text-teal-600 rounded hover:bg-teal-600 hover:text-white font-bold"
+                                onClick={() => handleCalculationChange('/researcheraverage', setErrorMessage, router)}
+                            >Average</button>
+                            <button
+                                className="py-2 px-8 border border-teal-600 border-2 text-teal-600 rounded hover:bg-teal-600 hover:text-white font-bold"
+                                onClick={() => handleCalculationChange('/researchercount', setErrorMessage, router)}
+                            >Count</button>
+                            <button
+                                className="py-2 px-6 bg-teal-600 border border-teal-600 border-2 text-white rounded font-bold"
+                            >Count All</button>
+                        </div>
                         <button
                             onClick={handleLogout}
                             className="px-8 text-teal-600 border border-teal-600 border-2 hover:text-white hover:bg-teal-600 duration-300 font-bold py-2 px-4 rounded"
@@ -161,21 +225,6 @@ export default function ResearcherHistogram() {
                         </button>
                     </div>
                 </nav>
-                <div className="fixed top-[20px] left-0 w-full flex justify-center z-40">
-                    <div className="justify-center space-x-6 py-4 mt-16">
-                        <button
-                            className="py-2 px-6 border border-teal-600 border-2 text-teal-600 rounded hover:bg-teal-600 hover:text-white font-bold"
-                            onClick={() => handleCalculationChange('/researcheraverage', setErrorMessage, router)}
-                        >Average</button>
-                        <button
-                            className="py-2 px-8 border border-teal-600 border-2 text-teal-600 rounded hover:bg-teal-600 hover:text-white font-bold"
-                            onClick={() => handleCalculationChange('/researchercount', setErrorMessage, router)}
-                        >Count</button>
-                        <button
-                            className="py-2 px-6 bg-teal-600 border border-teal-600 border-2 text-white rounded font-bold"
-                        >Count All</button>
-                    </div>
-                </div>
 
                 <div
                     className="bg-white shadow-lg flex w-full max-w-6xl mx-4 my-8 p-8 space-x-8 min-h-full h-300"
@@ -199,23 +248,36 @@ export default function ResearcherHistogram() {
                             ))}
                         </select>
 
-                        <select
-                            className="w-full p-3 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-teal-600 focus:border-transparent"
-                            value={specification}
-                            onChange={e => {
-                                setSpecification(e.target.value);
-                                setErrorMessage("");
-                            }}
+                        {filters.map((filter, index) => (
+                            <div key={index} className="w-full">
+                                <select
+                                    className="w-full p-3 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-teal-600 focus:border-transparent mb-2"
+                                    value={filter.specification}
+                                    onChange={e => updateFilter(filters, setFilters, index, 'specification', e.target.value)}
+                                >
+                                    <option value="">Select Specification</option>
+                                    {availableSpecifications.map(spec => (
+                                        <option key={spec} value={spec}>{spec.toUpperCase().replace(/ /g, '_')}</option>
+                                    ))}
+                                </select>
+                                {filter.specification && renderInputField(filter.specification, filter.inputValue, (value) => updateFilter(filters, setFilters, index, 'inputValue', value), filter.operator, (value) => updateFilter(filters, setFilters, index, 'operator', value))}
+                                <button
+                                    type="button"
+                                    onClick={() => removeFilter(filters, setFilters, index)}
+                                    className="w-full py-2 bg-red-500 text-white rounded-lg mb-4"
+                                >
+                                    Remove Filter
+                                </button>
+                            </div>
+                        ))}
+
+                        <button
+                            type="button"
+                            onClick={() => addFilter(filters, setFilters)}
+                            className="w-full py-2 bg-teal-500 text-white rounded-lg mb-4"
                         >
-                            <option value="">Select Specification</option>
-                            {availableSpecifications.map(spec => (
-                                <option key={spec} value={spec}>{spec.toUpperCase().replace(/ /g, '_')}</option>
-                            ))}
-                        </select>
-
-                        {/* Render input field based on the selected specification */}
-                        {specification && renderInputField(specification, inputValue, setInputValue)}
-
+                            Add Filter
+                        </button>
 
                         <div className="flex w-full">
                             <div className="flex-1 mr-2">
