@@ -13,6 +13,7 @@ export default function ResearcherCount() {
     const [filters, setFilters] = useState([]); // State to hold multiple filters
     const [startDate, setStartDate] = useState('');
     const [endDate, setEndDate] = useState('');
+    const [targetField, setTargetField] = useState('');
     const [errorMessage, setErrorMessage] = useState("");
     const [versionCount, setVersionCount] = useState(0);
 
@@ -31,7 +32,7 @@ export default function ResearcherCount() {
         setErrorMessage("");
 
         // Check for empty fields
-        if (!deviceType || !startDate || !endDate) {
+        if (!deviceType || !startDate || !endDate || !targetField) {
             setErrorMessage("Please fill in all fields");
             return;
         }
@@ -88,17 +89,20 @@ export default function ResearcherCount() {
             }
         }).filter(filter => filter !== null); // Filter out any null values
 
-        // Prepare the payload for the query
+        const catFilter = {
+            field: "category",
+            enum_filter: {
+                value: deviceType
+            }
+        };
+
+        // Payload for the query
         const payload = {
             query_type: "COUNT",
-            device_data: {
-                device_type: { plain: deviceType },
-                filters: filterPayloads,
-            },
-            timestamp: {
-                start_time: { plain: startDate + ":00Z" },
-                stop_time: { plain: endDate + ":00Z" }
-            },
+            target_field: targetField,
+            filters: [...filterPayloads, catFilter],
+            start_time: startDate + ":00Z",
+            end_time: endDate + ":00Z" 
         };
 
         const token = localStorage.getItem("token");
@@ -125,10 +129,10 @@ export default function ResearcherCount() {
             }
 
             const data = await response.json();
-            if (!data.result) {
+            if (!data.countResult) {
                 throw new Error("Query result not found");
             } else {
-                setVersionCount(data.result);
+                setVersionCount(data.countResult);
             }
 
             console.log(data);
@@ -229,6 +233,17 @@ export default function ResearcherCount() {
                         >
                             Add Filter
                         </button>
+
+                        <select
+                            className="w-full p-3 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-teal-600 focus:border-transparent mb-2"
+                            value={targetField}
+                            onChange={e => setTargetField(e.target.value)}
+                        >
+                            <option value="">Select Target Field</option>
+                            {availableSpecifications.map(spec => (
+                                <option key={spec} value={spec}>{spec.toUpperCase().replace(/ /g, '_')}</option>
+                            ))}
+                        </select>
 
                         <div className="flex w-full">
                             <div className="flex-1 mr-2">

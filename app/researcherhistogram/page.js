@@ -32,6 +32,7 @@ export default function ResearcherHistogram() {
     const [availableSpecifications, setAvailableSpecifications] = useState([]);
     const [filters, setFilters] = useState([]); // State to hold multiple filters
     const [startDate, setStartDate] = useState('');
+    const [targetField, setTargetField] = useState('');
     const [endDate, setEndDate] = useState('');
     const [errorMessage, setErrorMessage] = useState("");
     const [showHistogram, setShowHistogram] = useState(false); // State to control histogram visibility
@@ -59,7 +60,7 @@ export default function ResearcherHistogram() {
         }
 
         // Reset histogram data when device type changes
-        setShowHistogram(false); 
+        setShowHistogram(false);
         setHistogramData({
             labels: [],
             datasets: [
@@ -79,7 +80,7 @@ export default function ResearcherHistogram() {
         setErrorMessage("");
 
         // Check for empty fields
-        if (!deviceType || !startDate || !endDate) {
+        if (!deviceType || !startDate || !endDate || !targetField) {
             setErrorMessage("Please fill in all fields");
             return;
         }
@@ -136,24 +137,27 @@ export default function ResearcherHistogram() {
             }
         }).filter(filter => filter !== null); // Filter out any null values
 
+        const catFilter = {
+            field: "category",
+            enum_filter: {
+                value: deviceType
+            }
+        };
+
         // Payload for the query
         const payload = {
-            query_type: "COUNT_ALL",
-            device_data: {
-                device_type: { plain: deviceType === "Both" ? undefined : deviceType.toUpperCase().replace(' ', '_') },
-                filters: filterPayloads,
-            },
-            timestamp: {
-                start_time: { plain: startDate + ":00Z" },
-                stop_time: { plain: endDate + ":00Z" },
-            },
+            query_type: "GROUPED_COUNT",
+            target_field: targetField,
+            filters: [...filterPayloads, catFilter],
+            start_time: startDate + ":00Z",
+            end_time: endDate + ":00Z"
         };
 
         const token = localStorage.getItem("token");
 
         // Check if the token is expired
         if (isTokenExpired(token)) {
-            handleLogout(); 
+            handleLogout();
             return Promise.reject("Token expired");
         }
 
@@ -177,11 +181,11 @@ export default function ResearcherHistogram() {
 
             // Update the histogram data
             setHistogramData({
-                labels: Object.keys(data.result),
+                labels: Object.keys(data.groupedCountResult.map),
                 datasets: [
                     {
                         label: personalizedLabel,
-                        data: Object.values(data.result),
+                        data: Object.values(data.groupedCountResult.map),
                         backgroundColor: 'rgba(13, 148, 136, 0.2)',
                         borderColor: 'rgba(115, 118, 110, 1)',
                         borderWidth: 1,
@@ -278,6 +282,17 @@ export default function ResearcherHistogram() {
                         >
                             Add Filter
                         </button>
+
+                        <select
+                            className="w-full p-3 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-teal-600 focus:border-transparent mb-2"
+                            value={targetField}
+                            onChange={e => setTargetField(e.target.value)}
+                        >
+                            <option value="">Select Target Field</option>
+                            {availableSpecifications.map(spec => (
+                                <option key={spec} value={spec}>{spec.toUpperCase().replace(/ /g, '_')}</option>
+                            ))}
+                        </select>
 
                         <div className="flex w-full">
                             <div className="flex-1 mr-2">

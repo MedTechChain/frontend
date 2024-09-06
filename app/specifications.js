@@ -1,25 +1,25 @@
 
 export const allSpecifications = [
-    "HOSPITAL",
-    "MANUFACTURER",
-    "MODEL",
-    "FIRMWARE_VERSION",
-    "DEVICE_TYPE",
-    "PRODUCTION_DATE",
-    "LAST_SERVICE_DATE",
-    "WARRANTY_EXPIRY_DATE",
-    "LAST_SYNC_TIME",
-    "USAGE_HOURS",
-    "BATTERY_LEVEL",
-    "SYNC_FREQUENCY_SECONDS",
-    "ACTIVE_STATUS",
-    "SPECIALITY",
+    "hospital",
+    "manufacturer",
+    "model",
+    "firmware_version",
+    "device_type",
+    "production_date",
+    "last_service_date",
+    "warranty_expiry_date",
+    "last_sync_time",
+    "usage_hours",
+    "battery_level",
+    "sync_frequency_seconds",
+    "active_status",
+    "speciality",
 ];
 
 // Device Categories
 export const deviceCategories = [
-    "Portable Device",
-    "Wearable Device",
+    "Portable",
+    "Wearable",
 ];
 
 // Medical Specialities
@@ -83,21 +83,21 @@ export const medicalSpecialityOptions = [
 
 // Map of specifications to types and default operators
 export const specificationTypeMap = {
-    "HOSPITAL": { type: "STRING", defaultOperator: "EQUALS" },
-    "MANUFACTURER": { type: "STRING", defaultOperator: "EQUALS" },
-    "MODEL": { type: "STRING", defaultOperator: "EQUALS" },
-    "FIRMWARE_VERSION": { type: "STRING", defaultOperator: "EQUALS" },
-    "DEVICE_TYPE": { type: "STRING", defaultOperator: "EQUALS" },
-    "PRODUCTION_DATE": { type: "TIMESTAMP", defaultOperator: "EQUALS" },
-    "LAST_SERVICE_DATE": { type: "TIMESTAMP", defaultOperator: "EQUALS" },
-    "WARRANTY_EXPIRY_DATE": { type: "TIMESTAMP", defaultOperator: "EQUALS" },
-    "LAST_SYNC_TIME": { type: "TIMESTAMP", defaultOperator: "EQUALS" },
-    "USAGE_HOURS": { type: "INTEGER", defaultOperator: "EQUALS" },
-    "BATTERY_LEVEL": { type: "INTEGER", defaultOperator: "EQUALS" },
-    "SYNC_FREQUENCY_SECONDS": { type: "INTEGER", defaultOperator: "EQUALS" },
-    "ACTIVE_STATUS": { type: "BOOL", defaultOperator: "EQUALS" },
-    "SPECIALITY": { type: "MEDICAL_SPECIALITY", defaultOperator: "EQUALS" },
-    "CATEGORY": { type: "DEVICE_CATEGORY", defaultOperator: "EQUALS" },
+    "hospital": { type: "STRING", defaultOperator: "EQUALS" },
+    "manufacturer": { type: "STRING", defaultOperator: "EQUALS" },
+    "model": { type: "STRING", defaultOperator: "EQUALS" },
+    "firmware_version": { type: "STRING", defaultOperator: "EQUALS" },
+    "device_type": { type: "STRING", defaultOperator: "EQUALS" },
+    "production_date": { type: "TIMESTAMP", defaultOperator: "EQUALS" },
+    "last_service_date": { type: "TIMESTAMP", defaultOperator: "EQUALS" },
+    "warranty_expiry_date": { type: "TIMESTAMP", defaultOperator: "EQUALS" },
+    "last_sync_time": { type: "TIMESTAMP", defaultOperator: "EQUALS" },
+    "usage_hours": { type: "INTEGER", defaultOperator: "EQUALS" },
+    "battery_level": { type: "INTEGER", defaultOperator: "EQUALS" },
+    "sync_frequency_seconds": { type: "INTEGER", defaultOperator: "EQUALS" },
+    "active_status": { type: "BOOL", defaultOperator: "EQUALS" },
+    "speciality": { type: "MEDICAL_SPECIALITY", defaultOperator: "EQUALS" },
+    "category": { type: "DEVICE_CATEGORY", defaultOperator: "EQUALS" },
 };
 
 // Operators for different types
