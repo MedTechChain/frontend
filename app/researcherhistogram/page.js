@@ -222,7 +222,7 @@ export default function ResearcherHistogram() {
                             >Count All</button>
                         </div>
                         <button
-                            onClick={handleLogout}
+                            onClick={() => handleLogout(router)}
                             className="px-8 text-teal-600 border border-teal-600 border-2 hover:text-white hover:bg-teal-600 duration-300 font-bold py-2 px-4 rounded"
                         >
                             Logout

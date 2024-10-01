@@ -15,7 +15,7 @@ export const API_URL =
 
 
 // Function to handle logout
-export const handleLogout = () => {
+export const handleLogout = (router) => {
     // Clear user token or session data
     localStorage.removeItem("token");
 
