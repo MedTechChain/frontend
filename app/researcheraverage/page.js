@@ -129,7 +129,9 @@ export default function ResearcherAverage() {
             if (!data.averageResult) {
                 throw new Error("Query result not found");
             } else {
-                setAverageResult(data.averageResult);
+                var d = new Date(0); // The 0 there is the key, which sets the date to the epoch
+                d.setUTCSeconds(data.averageResult);
+                setAverageResult(d.toGMTString());
             }
             console.log(data);
         } catch (error) {
